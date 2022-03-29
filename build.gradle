@@ -1,0 +1,42 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.4'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'com.diffplug.spotless' version '5.6.1'
+	id 'java'
+	id 'idea'
+}
+
+group = 'bits.mt.ss.dda.groupbm'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+	implementation 'org.postgresql:postgresql'
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.apache.commons:commons-lang3:3.11'
+	implementation 'com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:r239'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+spotless {
+	java {
+		googleJavaFormat()
+		importOrder 'java', 'javax', 'org', 'com', 'io'
+		removeUnusedImports()
+	}
+}
+
+compileJava.dependsOn 'spotlessApply'
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

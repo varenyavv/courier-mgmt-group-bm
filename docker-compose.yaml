@@ -1,0 +1,27 @@
+version: '3'
+services:
+  couriermgmt:
+    container_name: couriermgmt
+    depends_on:
+      - postgres
+    build:
+      context: .
+    ports:
+      - 8080:8080
+      - 5005:5005
+    environment:
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - ENVIRONMENT_NAME=local
+      - DB_HOST=postgres
+      - DB_NAME=couriermgmt
+      - DB_USER=groupbm
+      - DB_PWD=groupbm
+  postgres:
+    image: docker.repo1.uhc.com/postgres:12.3
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=groupbm
+      - POSTGRES_PASSWORD=groupbm
+      - POSTGRES_DB=couriermgmt
+    ports:
+      - 5432:5432
