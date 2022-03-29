@@ -17,7 +17,7 @@ services:
       - DB_USER=groupbm
       - DB_PWD=groupbm
   postgres:
-    image: docker.repo1.uhc.com/postgres:12.3
+    image: postgres:12.3
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=groupbm
