@@ -6,10 +6,12 @@ public class Hop {
 
   Branch branch;
   TransportMode shipVia;
+  int hopCounter;
 
-  public Hop(Branch branch, TransportMode shipVia) {
+  public Hop(Branch branch, TransportMode shipVia, int hopCounter) {
     this.branch = branch;
     this.shipVia = shipVia;
+    this.hopCounter = hopCounter;
   }
 
   public Branch getBranch() {
@@ -18,6 +20,10 @@ public class Hop {
 
   public TransportMode getShipVia() {
     return shipVia;
+  }
+
+  public int getHopCounter() {
+    return hopCounter;
   }
 
   @Override

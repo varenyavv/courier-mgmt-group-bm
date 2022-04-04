@@ -7,11 +7,11 @@ INSERT INTO public.branch (branch_code,branch_name,branch_address) VALUES
 	 ('B0006','Dwarka Delhi','Dwarka, Sector-2, DL'),
 	 ('B0007','South Delhi','Saket, New Delhi, DL');
 
-INSERT INTO public.rate_card (distance_from_km,distance_to_km,base_rate,express_mode_factor,extra_weight_factor_per_kg) VALUES
-	 (0,50,50,1.2,10),
-	 (51,100,100,1.5,10),
-	 (101,500,150,1.5,10),
-	 (501,10000,200,2,20);
+INSERT INTO public.rate_card (distance_from_km,distance_to_km,base_rate,extra_weight_factor_per_kg) VALUES
+	 (0,50,50,10),
+	 (51,100,100,10),
+	 (101,500,150,10),
+	 (501,10000,200,20);
 
 INSERT INTO public.service_pincode (pincode,branch_code) VALUES
 	 (201301,'B0001'),

@@ -1,7 +1,5 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.model;
 
-import bits.mt.ss.dda.groupbm.couriermgmt.enums.DeliveryMode;
-
 public class Shipment {
 
   private final long sourcePincode;
@@ -10,7 +8,6 @@ public class Shipment {
   private final int widthInCm;
   private final int heightInCm;
   private final int weightInGram;
-  private final DeliveryMode deliveryMode;
   private String sourceAddress;
   private String destinationAddress;
 
@@ -20,15 +17,13 @@ public class Shipment {
       int lengthInCm,
       int widthInCm,
       int heightInCm,
-      int weightInGram,
-      DeliveryMode deliveryMode) {
+      int weightInGram) {
     this.sourcePincode = sourcePincode;
     this.destPincode = destPincode;
     this.lengthInCm = lengthInCm;
     this.widthInCm = widthInCm;
     this.heightInCm = heightInCm;
     this.weightInGram = weightInGram;
-    this.deliveryMode = deliveryMode;
   }
 
   public void setSourceAddress(String sourceAddress) {
@@ -69,9 +64,5 @@ public class Shipment {
 
   public String getDestinationAddress() {
     return destinationAddress;
-  }
-
-  public DeliveryMode getDeliveryMode() {
-    return deliveryMode;
   }
 }

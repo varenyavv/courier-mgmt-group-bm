@@ -18,4 +18,11 @@ public final class ApplicationConstants {
 
     public static final String RESOURCE_ROOT_URI = "/routes";
   }
+
+  public static final class Quote {
+
+    private Quote() {}
+
+    public static final String RESOURCE_ROOT_URI = "/quotes";
+  }
 }

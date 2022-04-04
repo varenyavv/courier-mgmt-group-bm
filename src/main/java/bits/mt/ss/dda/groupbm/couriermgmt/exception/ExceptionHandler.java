@@ -206,7 +206,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
   @org.springframework.web.bind.annotation.ExceptionHandler(ServiceUnavailableException.class)
   protected ResponseEntity<Object> handleServiceUnavailableException(
-      UnprocessableEntityException ex, WebRequest webRequest) {
+      ServiceUnavailableException ex, WebRequest webRequest) {
     LOG.error("In handleServiceUnavailableException method: ", ex);
     return buildErrorResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, ex.getError(), webRequest);
   }
