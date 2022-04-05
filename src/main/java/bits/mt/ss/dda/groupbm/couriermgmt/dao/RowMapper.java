@@ -33,8 +33,10 @@ public class RowMapper {
             rs.getString("branch_code"),
             rs.getString("branch_name"),
             rs.getString("branch_address")),
-        TransportMode.valueOf(rs.getString("transportation_mode")),
-        rs.getInt(rs.getString("hop_counter")));
+        null != rs.getString("transportation_mode")
+            ? TransportMode.valueOf(rs.getString("transportation_mode"))
+            : null,
+        rs.getInt("hop_counter"));
   }
 
   static Distance distanceRowMapper(ResultSet rs, int rowNum) throws SQLException {
