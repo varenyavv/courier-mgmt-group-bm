@@ -8,8 +8,6 @@ public class Shipment {
   private final int widthInCm;
   private final int heightInCm;
   private final int weightInGram;
-  private String sourceAddress;
-  private String destinationAddress;
 
   public Shipment(
       long sourcePincode,
@@ -24,14 +22,6 @@ public class Shipment {
     this.widthInCm = widthInCm;
     this.heightInCm = heightInCm;
     this.weightInGram = weightInGram;
-  }
-
-  public void setSourceAddress(String sourceAddress) {
-    this.sourceAddress = sourceAddress;
-  }
-
-  public void setDestinationAddress(String destinationAddress) {
-    this.destinationAddress = destinationAddress;
   }
 
   public long getSourcePincode() {
@@ -56,13 +46,5 @@ public class Shipment {
 
   public int getWeightInGram() {
     return weightInGram;
-  }
-
-  public String getSourceAddress() {
-    return sourceAddress;
-  }
-
-  public String getDestinationAddress() {
-    return destinationAddress;
   }
 }

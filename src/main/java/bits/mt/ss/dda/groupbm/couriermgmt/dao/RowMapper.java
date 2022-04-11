@@ -15,7 +15,7 @@ public class RowMapper {
   private RowMapper() {}
 
   static RateCard rateCardRowMapper(ResultSet rs, int rowNum) throws SQLException {
-    return new RateCard(rs.getDouble("base_rate"), rs.getDouble("extra_weight_factor_per_kg"));
+    return new RateCard(rs.getDouble("base_rate"), rs.getDouble("extra_weight_factor"));
   }
 
   static PincodeBranch pincodeBranchRowMapper(ResultSet rs, int rowNum) throws SQLException {
@@ -24,7 +24,12 @@ public class RowMapper {
 
   static Branch branchRowMapper(ResultSet rs, int rowNum) throws SQLException {
     return new Branch(
-        rs.getString("branch_code"), rs.getString("branch_name"), rs.getString("branch_address"));
+        rs.getString("branch_code"),
+        rs.getString("branch_name"),
+        rs.getString("add_line"),
+        rs.getLong("pincode"),
+        rs.getString("city"),
+        rs.getString("state"));
   }
 
   static Hop hopRowMapper(ResultSet rs, int rowNum) throws SQLException {
@@ -32,9 +37,12 @@ public class RowMapper {
         new Branch(
             rs.getString("branch_code"),
             rs.getString("branch_name"),
-            rs.getString("branch_address")),
-        null != rs.getString("transportation_mode")
-            ? TransportMode.valueOf(rs.getString("transportation_mode"))
+            rs.getString("add_line"),
+            rs.getLong("pincode"),
+            rs.getString("city"),
+            rs.getString("state")),
+        null != rs.getString("transport_mode")
+            ? TransportMode.valueOf(rs.getString("transport_mode"))
             : null,
         rs.getInt("hop_counter"));
   }
@@ -42,9 +50,9 @@ public class RowMapper {
   static Distance distanceRowMapper(ResultSet rs, int rowNum) throws SQLException {
     return new Distance(
         rs.getLong("source_pincode"),
-        rs.getLong("destination_pincode"),
+        rs.getLong("dest_pincode"),
         rs.getString("source_branch"),
         rs.getString("dest_branch"),
-        rs.getInt("distance_in_km"));
+        rs.getInt("distance_km"));
   }
 }

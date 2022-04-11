@@ -24,7 +24,7 @@ public class RouterDao {
   @Autowired JdbcTemplate jdbcTemplate;
 
   private static final String SELECT_RATE_CARD_BY_DISTANCE_QUERY =
-      "SELECT base_rate, extra_weight_factor_per_kg FROM rate_card "
+      "SELECT base_rate, extra_weight_factor FROM rate_card "
           + "WHERE distance_from_km = ? AND distance_to_km = ?";
 
   private static final String SELECT_BRANCH_CODE_BY_PINCODES =
@@ -34,28 +34,28 @@ public class RouterDao {
       "SELECT * FROM branch where branch_code NOT IN (?,?) LIMIT ?";
 
   private static final String INSERT_INTO_DISTANCE =
-      "INSERT INTO distance (source_pincode,destination_pincode,distance_in_km) VALUES (?,?,?)";
+      "INSERT INTO distance (source_pincode,dest_pincode,distance_km) VALUES (?,?,?)";
 
   private static final String INSERT_INTO_ROUTE =
-      "INSERT INTO route (source_pincode,destination_pincode,hop_counter,next_hop,transportation_mode) VALUES (?,?,?,?,?::transportation_mode)";
+      "INSERT INTO route (source_pincode,dest_pincode,hop_counter,next_hop,transport_mode) VALUES (?,?,?,?,?::transport_mode)";
 
   private static final String SELECT_DISTANCE_BETWEEN_SOURCE_AND_DESTINATION =
-      "SELECT d.distance_in_km, d.source_pincode, source.branch_code as source_branch, "
-          + "d.destination_pincode, dest.branch_code as dest_branch "
+      "SELECT d.distance_km, d.source_pincode, source.branch_code as source_branch, "
+          + "d.dest_pincode, dest.branch_code as dest_branch "
           + "FROM distance d "
           + "INNER JOIN service_pincode source "
           + "ON d.source_pincode=source.pincode "
           + "INNER JOIN service_pincode dest "
-          + "ON d.destination_pincode=dest.pincode "
-          + "where d.source_pincode=? and  d.destination_pincode=?";
+          + "ON d.dest_pincode=dest.pincode "
+          + "where d.source_pincode=? and  d.dest_pincode=?";
 
   private static final String SELECT_DISTANCE_BETWEEN_SOURCE_AND_DESTINATION_NO_JOIN =
-      "SELECT d.distance_in_km "
+      "SELECT d.distance_km "
           + "FROM distance d "
-          + "where d.source_pincode=? and  d.destination_pincode=?";
+          + "where d.source_pincode=? and  d.dest_pincode=?";
 
   private static final String SELECT_ROUTE_BETWEEN_SOURCE_AND_DESTINATION =
-      "SELECT b.branch_code,b.branch_name,b.branch_address,r.transportation_mode,r.hop_counter FROM route r INNER JOIN branch b ON b.branch_code = r.next_hop where r.source_pincode=? and  r.destination_pincode=? order by r.hop_counter";
+      "SELECT b.branch_code,b.branch_name,b.add_line,b.pincode,b.city,b.state,r.transport_mode,r.hop_counter FROM route r INNER JOIN branch b ON b.branch_code = r.next_hop where r.source_pincode=? and  r.dest_pincode=? order by r.hop_counter";
 
   public RateCard getRateCardByDistance(double distanceInKm) {
 
