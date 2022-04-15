@@ -98,7 +98,7 @@ CREATE SEQUENCE shipment_id START 100001;
 
 CREATE TABLE shipment (
 	shipment_id numeric NOT NULL,
-	consignment_num varchar(10) NOT NULL CHECK (consignment_num ~ 'BM[0-9]+'),
+	consignment_num varchar(10) NOT NULL CHECK (consignment_num ~ 'IN[0-9]+BM'),
 	customer_id numeric(10) NOT NULL,
 	weight_gm numeric NOT NULL,
 	length_cm numeric NOT NULL,
