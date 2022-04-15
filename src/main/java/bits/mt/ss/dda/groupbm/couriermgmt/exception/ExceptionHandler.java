@@ -204,6 +204,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     return buildErrorResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, ex.getError(), webRequest);
   }
 
+  @org.springframework.web.bind.annotation.ExceptionHandler(EntityNotFoundException.class)
+  protected ResponseEntity<Object> handleEntityNotFoundException(
+      EntityNotFoundException ex, WebRequest webRequest) {
+    LOG.error("In handleEntityNotFoundException method: ", ex);
+    return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex.getError(), webRequest);
+  }
+
   @org.springframework.web.bind.annotation.ExceptionHandler(ServiceUnavailableException.class)
   protected ResponseEntity<Object> handleServiceUnavailableException(
       ServiceUnavailableException ex, WebRequest webRequest) {

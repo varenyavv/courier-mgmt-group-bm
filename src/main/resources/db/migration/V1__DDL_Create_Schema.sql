@@ -78,6 +78,8 @@ CREATE TABLE agent (
 	CONSTRAINT agent_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
 );
 
+CREATE SEQUENCE employee_id START 100001;
+
 CREATE TABLE employee (
 	employee_id numeric(6) NOT NULL,
 	contact_num numeric(10) NOT NULL,

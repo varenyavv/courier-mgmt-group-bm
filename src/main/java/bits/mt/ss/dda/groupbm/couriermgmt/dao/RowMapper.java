@@ -4,8 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import bits.mt.ss.dda.groupbm.couriermgmt.enums.TransportMode;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Agent;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Branch;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Customer;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Distance;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Employee;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Hop;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.PincodeBranch;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.RateCard;
@@ -54,5 +57,50 @@ public class RowMapper {
         rs.getString("source_branch"),
         rs.getString("dest_branch"),
         rs.getInt("distance_km"));
+  }
+
+  static Agent agentRowMapper(ResultSet rs, int rowNum) throws SQLException {
+    return new Agent(
+        rs.getLong("contact_num"),
+        rs.getString("name"),
+        rs.getString("add_line"),
+        rs.getLong("pincode"),
+        rs.getString("city"),
+        rs.getString("state"),
+        new Branch(
+            rs.getString("branch_code"),
+            rs.getString("branch_name"),
+            rs.getString("add_line"),
+            rs.getLong("pincode"),
+            rs.getString("city"),
+            rs.getString("state")));
+  }
+
+  static Employee employeeRowMapper(ResultSet rs, int rowNum) throws SQLException {
+    return new Employee(
+        rs.getLong("employee_id"),
+        rs.getLong("contact_num"),
+        rs.getString("name"),
+        rs.getString("add_line"),
+        rs.getLong("pincode"),
+        rs.getString("city"),
+        rs.getString("state"),
+        new Branch(
+            rs.getString("branch_code"),
+            rs.getString("branch_name"),
+            rs.getString("add_line"),
+            rs.getLong("pincode"),
+            rs.getString("city"),
+            rs.getString("state")));
+  }
+
+  static Customer customerRowMapper(ResultSet rs, int rowNum) throws SQLException {
+    return new Customer(
+        rs.getLong("contact_num"),
+        rs.getString("name"),
+        rs.getString("add_line"),
+        rs.getLong("pincode"),
+        rs.getString("city"),
+        rs.getString("state"));
   }
 }

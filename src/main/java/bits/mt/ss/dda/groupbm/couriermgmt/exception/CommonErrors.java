@@ -25,7 +25,8 @@ public enum CommonErrors implements ErrorCode {
   MEDIA_TYPE_NOT_SUPPORTED(
       "100014", "Content-Type header does not contain a supported Media Type."),
   MEDIA_TYPE_NOT_ACCEPTABLE("100014", "Accept header does not contain a supported Media Type"),
-  SERVICE_NOT_AVAILABLE("100016", "%s");
+  SERVICE_NOT_AVAILABLE("100016", "%s"),
+  ENTITY_NOT_FOUND("100017", "%s having %s: %s not found!");
 
   private static final String EXCEPTION_MESSAGE_TO_BE_USED = "%s";
 
