@@ -12,7 +12,7 @@ CREATE TYPE transport_mode AS ENUM (
 	'ROAD');
 
 CREATE TABLE branch (
-	branch_code varchar(5) NOT NULL,
+	branch_code varchar(5) NOT NULL CHECK (branch_code ~ 'B[0-9]+'),
 	branch_name varchar NULL,
 	add_line varchar NULL,
 	pincode numeric(6) NOT NULL,
@@ -94,9 +94,11 @@ CREATE TABLE employee (
 	CONSTRAINT employee_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
 );
 
+CREATE SEQUENCE shipment_id START 100001;
+
 CREATE TABLE shipment (
 	shipment_id numeric NOT NULL,
-	consignment_num varchar(10) NOT NULL,
+	consignment_num varchar(10) NOT NULL CHECK (consignment_num ~ 'BM[0-9]+'),
 	customer_id numeric(10) NOT NULL,
 	weight_gm numeric NOT NULL,
 	length_cm numeric NOT NULL,
