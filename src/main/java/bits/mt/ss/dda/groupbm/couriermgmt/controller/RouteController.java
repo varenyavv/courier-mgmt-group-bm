@@ -22,7 +22,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "Routing Controller API")
+@Tag(
+    name = "APIs to get route and quotes",
+    description =
+        "These APIs help in determining the route between source and destination pincodes "
+            + "as well as evaluating the cost of shipment depending upon its dimensions and distance to travel. "
+            + "It also helps in verifying serviceability between a given source and destination addresses "
+            + "based on their respective pincodes.")
 public class RouteController {
 
   @Autowired RandomRouteAllocator randomRouteAllocator;
@@ -66,7 +72,14 @@ public class RouteController {
             responseCode = "409",
             description = ApplicationConstants.HTTP_422_UNPROCESSABLE_ENTITY)
       })
-  @Operation(summary = "Api to get quote between source and destination pin codes")
+  @Operation(
+      summary = "Api to get quote between source and destination pin codes",
+      description =
+          "Depending upon the dimensions and weight of the shipment "
+              + "as well as the distance between source and destination address, "
+              + "this API returns the total cost of the shipment. "
+              + "It also helps in checking the serviceability "
+              + "between a given source and destination address based on their respective pincodes")
   public ResponseEntity<BaseResponse<Route>> getQuote(@RequestBody Shipment shipment) {
 
     BaseResponse<Route> response = new BaseResponse<>();
