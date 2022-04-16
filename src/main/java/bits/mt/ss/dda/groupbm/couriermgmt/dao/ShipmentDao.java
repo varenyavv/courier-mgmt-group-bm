@@ -32,7 +32,7 @@ public class ShipmentDao {
           + "dest_add_line,dest_pincode,dest_city,dest_state,"
           + "distance_km,booking_amount,"
           + "status) "
-          + "VALUES (nextval('shipment_id'),'IN'||lpad(cast (nextval('consignment_num') as varchar),6,'0')||'BM',?,"
+          + "VALUES (nextval('seq_shipment_id'),'IN'||lpad(cast (nextval('seq_consignment_num') as varchar),6,'0')||'BM',?,"
           + "?,?,?,?,"
           + "?,?,?,?,"
           + "?,?,"
