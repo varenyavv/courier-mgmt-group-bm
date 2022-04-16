@@ -138,3 +138,47 @@ CREATE TABLE shipment_tracker (
 	CONSTRAINT shipment_tracker_fk_3 FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
 	CONSTRAINT shipment_tracker_fk_4 FOREIGN KEY (agent_id) REFERENCES agent(contact_num) ON DELETE CASCADE
 );
+
+create or replace procedure branchinsert(BranchCode varchar,BranchName varchar,
+   AddLine varchar,CityOfBranch varchar,"State" varchar,PinNumber numeric)
+LANGUAGE sql
+AS $$	
+	Insert into branch (branch_code, branch_name, add_line, pincode,city,"state") 
+	values (BranchCode, BranchName, AddLine, PinNumber,CityOfBranch,"State");
+$$;
+
+
+create or replace procedure branchupdate(BranchCode varchar,BranchName varchar,
+   AddLine varchar,CityOfBranch varchar,"State" varchar,PinNumber numeric)
+LANGUAGE sql
+AS $$	
+	  update branch set branch_name = BranchName,
+	  pincode = PinNumber, 
+	  "state" = "State", 
+	  city = CityOfBranch, 
+	  add_line = AddLine
+	  where branch_code = BranchCode;	
+$$;
+
+
+create or replace procedure agentinsert(Contact_Number numeric,"Name" varchar,BranchCode varchar,
+   AddLine varchar,CityOfBranch varchar,"State" varchar,PinNumber numeric)
+LANGUAGE sql
+AS $$	
+	Insert into agent (contact_num,"name",branch_code,add_line, pincode,city,"state") 
+	values (Contact_Number,"Name",BranchCode,AddLine, PinNumber,CityOfBranch,"State");
+$$;
+
+
+create or replace procedure agentupdate(Contact_Number numeric,"Name" varchar,BranchCode varchar,
+   AddLine varchar,CityOfBranch varchar,"State" varchar,PinNumber numeric)
+LANGUAGE sql
+AS $$	
+	  update agent set "name"="Name",
+	  branch_code = BranchCode,
+	  pincode = PinNumber, 
+	  "state" = "State", 
+	  city = CityOfBranch, 
+	  add_line = AddLine
+	  where contact_num=Contact_Number;
+$$;
