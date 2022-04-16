@@ -2,13 +2,15 @@ package bits.mt.ss.dda.groupbm.couriermgmt.model;
 
 public class Agent {
 
-  private final long contactNumber;
-  private final String name;
-  private final String addressLine;
-  private final long pincode;
-  private final String city;
-  private final String state;
-  private final Branch branch;
+  private long contactNumber;
+  private String name;
+  private String addressLine;
+  private long pincode;
+  private String city;
+  private String state;
+  private Branch branch;
+
+  public Agent() {}
 
   public Agent(
       long contactNumber,
@@ -25,6 +27,41 @@ public class Agent {
     this.city = city;
     this.state = state;
     this.branch = branch;
+  }
+
+  public Agent setContactNumber(long contactNumber) {
+    this.contactNumber = contactNumber;
+    return this;
+  }
+
+  public Agent setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public Agent setAddressLine(String addressLine) {
+    this.addressLine = addressLine;
+    return this;
+  }
+
+  public Agent setPincode(long pincode) {
+    this.pincode = pincode;
+    return this;
+  }
+
+  public Agent setCity(String city) {
+    this.city = city;
+    return this;
+  }
+
+  public Agent setState(String state) {
+    this.state = state;
+    return this;
+  }
+
+  public Agent setBranch(Branch branch) {
+    this.branch = branch;
+    return this;
   }
 
   public long getContactNumber() {

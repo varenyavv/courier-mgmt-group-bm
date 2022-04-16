@@ -1,9 +1,11 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.service;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotEmpty;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -11,18 +13,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import bits.mt.ss.dda.groupbm.couriermgmt.dao.AgentDao;
+import bits.mt.ss.dda.groupbm.couriermgmt.dao.BranchDao;
 import bits.mt.ss.dda.groupbm.couriermgmt.dao.CustomerDao;
+import bits.mt.ss.dda.groupbm.couriermgmt.dao.EmployeeDao;
+import bits.mt.ss.dda.groupbm.couriermgmt.dao.RouterDao;
 import bits.mt.ss.dda.groupbm.couriermgmt.dao.ShipmentDao;
 import bits.mt.ss.dda.groupbm.couriermgmt.enums.Status;
 import bits.mt.ss.dda.groupbm.couriermgmt.exception.CommonErrors;
+import bits.mt.ss.dda.groupbm.couriermgmt.exception.EntityNotFoundException;
+import bits.mt.ss.dda.groupbm.couriermgmt.exception.ForbiddenException;
 import bits.mt.ss.dda.groupbm.couriermgmt.exception.UnauthorizedException;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Agent;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Branch;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Customer;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Employee;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Hop;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Shipment;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.ShipmentTracker;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.BookShipmentRequest;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.request.ForwardShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.BookShipmentResponse;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.ForwardShipmentResponse;
 
 @Service
 public class ShipmentService {
@@ -34,6 +46,12 @@ public class ShipmentService {
   @Autowired RandomRouteAllocator routeAllocator;
 
   @Autowired ShipmentDao shipmentDao;
+
+  @Autowired BranchDao branchDao;
+
+  @Autowired EmployeeDao employeeDao;
+
+  @Autowired RouterDao routerDao;
 
   public Route validateBookShipmentRequest(
       long agentContactNumber, BookShipmentRequest bookShipmentRequest) {
@@ -176,5 +194,108 @@ public class ShipmentService {
         .setConsignmentNumber(bookedShipment.getConsignmentNumber())
         .setBookingDateTime(
             shipmentTracker.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+  }
+
+  public List<Hop> validateForwardShipmentRequest(
+      long employeeId, ForwardShipmentRequest forwardShipmentRequest) {
+
+    Employee employee = employeeDao.getEmployeeById(employeeId);
+
+    if (null == employee) {
+      throw new UnauthorizedException(
+          CommonErrors.UNAUTHORIZED,
+          String.format("Employee with Id %s doesn't exist", employeeId));
+    }
+
+    Branch receivingBranch =
+        branchDao.getBranchByBranchCode(forwardShipmentRequest.getReceivingBranchCode());
+    if (null == receivingBranch) {
+      throw new EntityNotFoundException(
+          CommonErrors.ENTITY_NOT_FOUND,
+          "Branch",
+          "branch code",
+          forwardShipmentRequest.getReceivingBranchCode());
+    }
+
+    Shipment shipment =
+        shipmentDao.getShipmentByConsignmentNumber(forwardShipmentRequest.getConsignmentNumber());
+
+    if (null == shipment) {
+      throw new EntityNotFoundException(
+          CommonErrors.ENTITY_NOT_FOUND,
+          "Shipment",
+          "consignment number",
+          forwardShipmentRequest.getConsignmentNumber());
+    }
+
+    if (!employee
+        .getBranch()
+        .getBranchCode()
+        .equals(forwardShipmentRequest.getReceivingBranchCode())) {
+      throw new UnauthorizedException(
+          CommonErrors.UNAUTHORIZED,
+          String.format(
+              "Employee with Id %s is not allowed to update the status of the shipment received at branch %s "
+                  + "since s/he belongs to a different branch.",
+              employeeId, forwardShipmentRequest.getReceivingBranchCode()));
+    }
+
+    return routerDao.getRouteBetweenSourceAndDestination(
+        shipment.getSourcePincode(), shipment.getDestPincode());
+  }
+
+  public ForwardShipmentResponse forwardShipment(
+      long employeeId, ForwardShipmentRequest forwardShipmentRequest, List<Hop> routeToFollow) {
+
+    Employee employee = employeeDao.getEmployeeById(employeeId);
+    assertNotNull(employee, "Employee must not be null by now.");
+
+    List<ShipmentTracker> shipmentHistorySortedByDateDesc =
+        shipmentDao.getShipmentHistoryByConsignmentNumber(
+            forwardShipmentRequest.getConsignmentNumber());
+    assertNotEmpty(shipmentHistorySortedByDateDesc, "Shipment history must not be empty by now.");
+
+    ForwardShipmentResponse response =
+        new ForwardShipmentResponse()
+            .setConsignmentNumber(forwardShipmentRequest.getConsignmentNumber());
+
+    ShipmentTracker latestTrackerRecord = shipmentHistorySortedByDateDesc.get(0);
+
+    ShipmentTracker newTrackerRecord =
+        new ShipmentTracker()
+            .setShipment(latestTrackerRecord.getShipment())
+            .setEmployee(employee)
+            .setCreationDateTime(LocalDateTime.now())
+            .setStatusRemarks(forwardShipmentRequest.getStatusRemarks());
+
+    switch (latestTrackerRecord.getStatus()) {
+      case BOOKED:
+        Branch sourceBranch = routeToFollow.get(0).getBranch();
+
+        if (!forwardShipmentRequest.getReceivingBranchCode().equals(sourceBranch.getBranchCode())) {
+          throw new ForbiddenException(
+              CommonErrors.INVALID_RECEIVING_BRANCH,
+              forwardShipmentRequest.getReceivingBranchCode(),
+              sourceBranch.getBranchCode());
+        }
+
+        newTrackerRecord.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH);
+        newTrackerRecord.setCurrentBranch(sourceBranch);
+
+        shipmentDao.updateShipmentStatus(newTrackerRecord);
+
+        response.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH.toString());
+        response.setReceiveDateTime(
+            newTrackerRecord.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        break;
+      case RECEIVED_AT_SOURCE_BRANCH:
+      case IN_TRANSIT:
+        break;
+      default:
+        throw new ForbiddenException(
+            CommonErrors.UPDATE_NOT_ALLOWED_AT_BRANCH, latestTrackerRecord.getStatus().toString());
+    }
+
+    return response;
   }
 }

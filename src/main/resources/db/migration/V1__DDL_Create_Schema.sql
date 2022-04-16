@@ -1,5 +1,6 @@
 CREATE TYPE status AS ENUM (
 	'BOOKED',
+	'RECEIVED_AT_SOURCE_BRANCH',
 	'IN_TRANSIT',
 	'RECEIVED_AT_DEST_BRANCH',
 	'OUT_FOR_DELIVERY',
@@ -109,6 +110,7 @@ CREATE TABLE shipment (
 	length_cm numeric NOT NULL,
 	width_cm numeric NOT NULL,
 	height_cm numeric NOT NULL,
+	source_pincode numeric(6) NOT NULL,
 	dest_add_line varchar NOT NULL,
 	dest_pincode numeric(6) NOT NULL,
 	dest_city varchar NOT NULL,
@@ -119,7 +121,8 @@ CREATE TABLE shipment (
 	CONSTRAINT shipment_pk PRIMARY KEY (shipment_id),
 	CONSTRAINT shipment_un UNIQUE (consignment_num),
 	CONSTRAINT shipment_fk FOREIGN KEY (customer_id) REFERENCES customer(contact_num) ON DELETE CASCADE,
-	CONSTRAINT shipment_fk_1 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
+	CONSTRAINT shipment_fk_1 FOREIGN KEY (source_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT shipment_fk_2 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
 );
 
 CREATE SEQUENCE seq_shipment_tracker_id START 1;

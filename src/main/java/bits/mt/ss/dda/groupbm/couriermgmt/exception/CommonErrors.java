@@ -27,7 +27,12 @@ public enum CommonErrors implements ErrorCode {
   MEDIA_TYPE_NOT_ACCEPTABLE("100014", "Accept header does not contain a supported Media Type"),
   SERVICE_NOT_AVAILABLE("100016", "%s"),
   ENTITY_NOT_FOUND("100017", "%s having %s: %s not found!"),
-  UNAUTHORIZED("100018", "%s");
+  UNAUTHORIZED("100018", "%s"),
+  UPDATE_NOT_ALLOWED_AT_BRANCH(
+      "100019",
+      "Branch is not allowed to further update the shipment's status as its current status is %s"),
+  INVALID_RECEIVING_BRANCH(
+      "100020", "Receiving branch %s is invalid. Valid receiving branch is %s.");
 
   private static final String EXCEPTION_MESSAGE_TO_BE_USED = "%s";
 
