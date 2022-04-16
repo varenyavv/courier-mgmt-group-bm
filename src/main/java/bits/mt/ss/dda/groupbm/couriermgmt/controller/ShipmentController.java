@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.BaseResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.Links;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.BookShipmentRequest;
@@ -57,7 +58,13 @@ public class ShipmentController {
 
     BaseResponse<BookShipmentResponse> response = new BaseResponse<>();
 
-    shipmentService.validateBookShipmentRequest(agentContactNumber, bookShipmentRequest);
+    Route routeToFollow =
+        shipmentService.validateBookShipmentRequest(agentContactNumber, bookShipmentRequest);
+
+    BookShipmentResponse bookShipmentResponse =
+        shipmentService.bookShipment(agentContactNumber, bookShipmentRequest, routeToFollow);
+
+    response.setData(bookShipmentResponse);
 
     response.setLinks(
         new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));

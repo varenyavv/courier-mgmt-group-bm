@@ -44,6 +44,8 @@ public class BookShipmentRequest {
   @Range(min = 50, message = "Valid booking amount is required.")
   private double bookingAmount;
 
+  private String statusRemarks;
+
   public String getSourceAddressLine() {
     return sourceAddressLine;
   }
@@ -162,5 +164,14 @@ public class BookShipmentRequest {
 
   public void setBookingAmount(double bookingAmount) {
     this.bookingAmount = bookingAmount;
+  }
+
+  public String getStatusRemarks() {
+    return statusRemarks;
+  }
+
+  public BookShipmentRequest setStatusRemarks(String statusRemarks) {
+    this.statusRemarks = statusRemarks;
+    return this;
   }
 }

@@ -14,6 +14,7 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Shipment;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.BaseResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.Links;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.request.GetRouteRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.GetQuoteResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.service.RandomRouteAllocator;
 
@@ -48,14 +49,15 @@ public class RouteController {
             description = ApplicationConstants.HTTP_422_UNPROCESSABLE_ENTITY)
       })
   @Operation(summary = "Api to find route between source and destination pin codes")
-  public ResponseEntity<BaseResponse<Route>> findRoute(@RequestBody Shipment shipment) {
+  public ResponseEntity<BaseResponse<Route>> findRoute(
+      @RequestBody GetRouteRequest getRouteRequest) {
 
     BaseResponse<Route> response = new BaseResponse<>();
 
     response.setLinks(
         new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
 
-    response.setData(randomRouteAllocator.findRoute(shipment));
+    response.setData(randomRouteAllocator.findRoute(getShipment(getRouteRequest)));
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -81,16 +83,28 @@ public class RouteController {
               + "this API returns the total cost of the shipment. "
               + "It also helps in checking the serviceability "
               + "between a given source and destination address based on their respective pincodes")
-  public ResponseEntity<BaseResponse<GetQuoteResponse>> getQuote(@RequestBody Shipment shipment) {
+  public ResponseEntity<BaseResponse<GetQuoteResponse>> getQuote(
+      @RequestBody GetRouteRequest getQuoteRequest) {
 
     BaseResponse<GetQuoteResponse> response = new BaseResponse<>();
 
     response.setLinks(
         new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
 
-    Route route = randomRouteAllocator.findRoute(shipment);
+    Route route = randomRouteAllocator.findRoute(getShipment(getQuoteRequest));
+
     response.setData(new GetQuoteResponse(route.getDistance().getDistanceInKm(), route.getCost()));
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  private Shipment getShipment(GetRouteRequest request) {
+    return new Shipment()
+        .setSourcePincode(request.getSourcePincode())
+        .setDestPincode(request.getDestPincode())
+        .setWeightInGram(request.getWeightInGram())
+        .setLengthInCm(request.getLengthInCm())
+        .setWidthInCm(request.getWidthInCm())
+        .setHeightInCm(request.getHeightInCm());
   }
 }

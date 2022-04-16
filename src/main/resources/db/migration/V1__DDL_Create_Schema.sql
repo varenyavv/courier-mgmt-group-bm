@@ -95,6 +95,7 @@ CREATE TABLE employee (
 );
 
 CREATE SEQUENCE shipment_id START 100001;
+CREATE SEQUENCE consignment_num START 1;
 
 CREATE TABLE shipment (
 	shipment_id numeric NOT NULL,
@@ -111,20 +112,22 @@ CREATE TABLE shipment (
 	distance_km numeric NOT NULL,
 	booking_amount numeric NOT NULL,
 	"status" status NOT NULL,
-	status_remarks varchar NULL,
 	CONSTRAINT shipment_pk PRIMARY KEY (shipment_id),
 	CONSTRAINT shipment_un UNIQUE (consignment_num),
 	CONSTRAINT shipment_fk FOREIGN KEY (customer_id) REFERENCES customer(contact_num) ON DELETE CASCADE,
 	CONSTRAINT shipment_fk_1 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
 );
 
+CREATE SEQUENCE shipment_tracker_id START 1;
+
 CREATE TABLE shipment_tracker (
-	shipment_tracker_id numeric NOT NULL,
+	shipment_tracker_id serial NOT NULL,
 	shipment_id numeric NOT NULL,
 	current_branch varchar(5) NULL,
 	next_branch varchar(5) NULL,
 	"transport_mode" transport_mode NULL,
 	"status" status NOT NULL,
+	status_remarks varchar NULL,
 	creation_datetime timestamp NOT NULL,
 	employee_id numeric(6) NULL,
 	agent_id numeric(10) NULL,

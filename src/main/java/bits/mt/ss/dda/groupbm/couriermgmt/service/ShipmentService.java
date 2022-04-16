@@ -1,5 +1,9 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.service;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -8,13 +12,17 @@ import org.springframework.stereotype.Service;
 
 import bits.mt.ss.dda.groupbm.couriermgmt.dao.AgentDao;
 import bits.mt.ss.dda.groupbm.couriermgmt.dao.CustomerDao;
+import bits.mt.ss.dda.groupbm.couriermgmt.dao.ShipmentDao;
+import bits.mt.ss.dda.groupbm.couriermgmt.enums.Status;
 import bits.mt.ss.dda.groupbm.couriermgmt.exception.CommonErrors;
 import bits.mt.ss.dda.groupbm.couriermgmt.exception.UnauthorizedException;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Agent;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Customer;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Shipment;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.ShipmentTracker;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.BookShipmentRequest;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.BookShipmentResponse;
 
 @Service
 public class ShipmentService {
@@ -24,6 +32,8 @@ public class ShipmentService {
   @Autowired CustomerDao customerDao;
 
   @Autowired RandomRouteAllocator routeAllocator;
+
+  @Autowired ShipmentDao shipmentDao;
 
   public Route validateBookShipmentRequest(
       long agentContactNumber, BookShipmentRequest bookShipmentRequest) {
@@ -60,13 +70,13 @@ public class ShipmentService {
 
     Route route =
         routeAllocator.findRoute(
-            new Shipment(
-                customer.getPincode(),
-                bookShipmentRequest.getDestPincode(),
-                bookShipmentRequest.getLengthInCm(),
-                bookShipmentRequest.getWidthInCm(),
-                bookShipmentRequest.getHeightInCm(),
-                bookShipmentRequest.getWeightInGram()));
+            new Shipment()
+                .setSourcePincode(customer.getPincode())
+                .setDestPincode(bookShipmentRequest.getDestPincode())
+                .setLengthInCm(bookShipmentRequest.getLengthInCm())
+                .setWidthInCm(bookShipmentRequest.getWidthInCm())
+                .setHeightInCm(bookShipmentRequest.getHeightInCm())
+                .setWeightInGram(bookShipmentRequest.getWeightInGram()));
 
     if (!agent.getBranch().getBranchCode().equals(route.getDistance().getSourceBranchCode())) {
       throw new UnauthorizedException(
@@ -124,5 +134,47 @@ public class ShipmentService {
     if (ObjectUtils.isEmpty(bookShipmentRequest.getCustomerName())) {
       throw new IllegalArgumentException("Sender's name is missing.");
     }
+  }
+
+  public BookShipmentResponse bookShipment(
+      long agentContactNumber, BookShipmentRequest bookShipmentRequest, Route routeToFollow) {
+
+    Agent agent = agentDao.getAgentById(agentContactNumber);
+    assertNotNull(agent, "Agent can't be null by now");
+
+    Customer customer = customerDao.getCustomerById(bookShipmentRequest.getCustomerContactNum());
+    assertNotNull(agent, "Customer can't be null by now");
+
+    Shipment shipment =
+        new Shipment()
+            .setSourcePincode(customer.getPincode())
+            .setDestPincode(bookShipmentRequest.getDestPincode())
+            .setLengthInCm(bookShipmentRequest.getLengthInCm())
+            .setWidthInCm(bookShipmentRequest.getWidthInCm())
+            .setHeightInCm(bookShipmentRequest.getHeightInCm())
+            .setWeightInGram(bookShipmentRequest.getWeightInGram())
+            .setCustomer(customer)
+            .setDestAddressLine(bookShipmentRequest.getDestAddressLine())
+            .setDestCity(bookShipmentRequest.getDestCity())
+            .setDestState(bookShipmentRequest.getDestState())
+            .setDistanceInKm(routeToFollow.getDistance().getDistanceInKm())
+            .setBookingAmount(routeToFollow.getCost());
+
+    ShipmentTracker shipmentTracker =
+        new ShipmentTracker()
+            .setShipment(shipment)
+            .setAgent(agent)
+            .setNexBranch(routeToFollow.getHops().get(0).getBranch())
+            .setStatus(Status.BOOKED)
+            .setStatusRemarks(bookShipmentRequest.getStatusRemarks())
+            .setCreationDateTime(LocalDateTime.now());
+
+    Shipment bookedShipment = shipmentDao.createShipment(shipmentTracker);
+
+    return new BookShipmentResponse()
+        .setShipmentId(bookedShipment.getShipmentId())
+        .setConsignmentNumber(bookedShipment.getConsignmentNumber())
+        .setBookingDateTime(
+            shipmentTracker.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
   }
 }

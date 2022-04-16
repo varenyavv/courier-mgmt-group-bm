@@ -10,23 +10,26 @@ public class BookShipmentResponse {
     return shipmentId;
   }
 
-  public void setShipmentId(long shipmentId) {
+  public BookShipmentResponse setShipmentId(long shipmentId) {
     this.shipmentId = shipmentId;
+    return this;
   }
 
   public String getConsignmentNumber() {
     return consignmentNumber;
   }
 
-  public void setConsignmentNumber(String consignmentNumber) {
+  public BookShipmentResponse setConsignmentNumber(String consignmentNumber) {
     this.consignmentNumber = consignmentNumber;
+    return this;
   }
 
   public String getBookingDateTime() {
     return bookingDateTime;
   }
 
-  public void setBookingDateTime(String bookingDateTime) {
+  public BookShipmentResponse setBookingDateTime(String bookingDateTime) {
     this.bookingDateTime = bookingDateTime;
+    return this;
   }
 }
