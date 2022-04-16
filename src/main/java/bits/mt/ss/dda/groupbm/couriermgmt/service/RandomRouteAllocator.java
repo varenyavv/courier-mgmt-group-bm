@@ -92,21 +92,6 @@ public class RandomRouteAllocator implements RoutingEngine {
         sourcePincode, destinationPincode, sourceBranchCode.get(), destBranchCode.get(), distance);
   }
 
-  public Route getQuote(Shipment shipment) throws ServiceUnavailableException {
-
-    LOGGER.debug("getQuote operation invoked");
-
-    Distance distance = findDistance(shipment.getSourcePincode(), shipment.getDestPincode());
-
-    Double totalCost = null;
-    if ((shipment.getLengthInCm() > 0 && shipment.getWidthInCm() > 0)
-        || shipment.getWeightInGram() > 0) {
-      totalCost = getTotalCost(shipment, distance);
-    }
-
-    return new Route(null, totalCost).setTotalDistance(distance.getDistanceInKm());
-  }
-
   @Override
   public Route findRoute(Shipment shipment) throws ServiceUnavailableException {
 
@@ -154,7 +139,7 @@ public class RandomRouteAllocator implements RoutingEngine {
           hops.add(new Hop(sourceBranch, transportMode, 0));
           hops.add(new Hop(destinationBranch, null, 1));
           routerDao.saveRoute(shipment.getSourcePincode(), shipment.getDestPincode(), hops);
-          return new Route(hops, totalCost).setTotalDistance(distance.getDistanceInKm());
+          return new Route(hops, totalCost).setDistance(distance);
         }
 
         int hopCount = 0;
@@ -168,7 +153,7 @@ public class RandomRouteAllocator implements RoutingEngine {
       routerDao.saveRoute(shipment.getSourcePincode(), shipment.getDestPincode(), hops);
     }
 
-    return new Route(hops, totalCost).setTotalDistance(distance.getDistanceInKm());
+    return new Route(hops, totalCost).setDistance(distance);
   }
 
   private double getTotalCost(Shipment shipment, Distance distance) {

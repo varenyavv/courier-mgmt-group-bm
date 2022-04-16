@@ -27,6 +27,14 @@ public final class ApplicationConstants {
     public static final String RESOURCE_ROOT_URI = "/quotes";
   }
 
+  public static final class Shipment {
+
+    private Shipment() {}
+
+    public static final String SHIPMENT_RESOURCE_BASE_URI = "/shipments";
+    public static final String BOOK_SHIPMENT_URI = "/book";
+  }
+
   public static final class Person {
 
     private Person() {}

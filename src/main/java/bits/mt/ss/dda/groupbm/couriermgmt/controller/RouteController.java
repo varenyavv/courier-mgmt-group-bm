@@ -14,6 +14,7 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Shipment;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.BaseResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.Links;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.GetQuoteResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.service.RandomRouteAllocator;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,14 +81,15 @@ public class RouteController {
               + "this API returns the total cost of the shipment. "
               + "It also helps in checking the serviceability "
               + "between a given source and destination address based on their respective pincodes")
-  public ResponseEntity<BaseResponse<Route>> getQuote(@RequestBody Shipment shipment) {
+  public ResponseEntity<BaseResponse<GetQuoteResponse>> getQuote(@RequestBody Shipment shipment) {
 
-    BaseResponse<Route> response = new BaseResponse<>();
+    BaseResponse<GetQuoteResponse> response = new BaseResponse<>();
 
     response.setLinks(
         new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
 
-    response.setData(randomRouteAllocator.getQuote(shipment));
+    Route route = randomRouteAllocator.findRoute(shipment);
+    response.setData(new GetQuoteResponse(route.getDistance().getDistanceInKm(), route.getCost()));
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }

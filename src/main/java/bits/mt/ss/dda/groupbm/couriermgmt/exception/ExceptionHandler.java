@@ -218,6 +218,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     return buildErrorResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, ex.getError(), webRequest);
   }
 
+  @org.springframework.web.bind.annotation.ExceptionHandler(UnauthorizedException.class)
+  protected ResponseEntity<Object> handleUnauthorizedException(
+      UnauthorizedException ex, WebRequest webRequest) {
+    LOG.error("In handleUnauthorizedException method: ", ex);
+    return buildErrorResponseEntity(HttpStatus.UNAUTHORIZED, ex.getError(), webRequest);
+  }
+
   @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
   public ResponseEntity<Object> unhandledException(Exception ex, WebRequest webRequest) {
     LOG.error("In unhandledException method: ", ex);

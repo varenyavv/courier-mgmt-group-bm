@@ -40,4 +40,22 @@ public class Distance {
   public long getDistanceInKm() {
     return distanceInKm;
   }
+
+  @Override
+  public String toString() {
+    return "Distance{"
+        + "sourcePincode="
+        + sourcePincode
+        + ", destinationPincode="
+        + destinationPincode
+        + ", sourceBranchCode='"
+        + sourceBranchCode
+        + '\''
+        + ", destinationBranchCode='"
+        + destinationBranchCode
+        + '\''
+        + ", distanceInKm="
+        + distanceInKm
+        + '}';
+  }
 }

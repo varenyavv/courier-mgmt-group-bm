@@ -6,7 +6,7 @@ public class Route {
 
   private final List<Hop> hops;
   private final Double cost;
-  private Long totalDistance;
+  private Distance distance;
   private final boolean serviceable;
 
   public Route(List<Hop> hops, Double cost) {
@@ -23,12 +23,12 @@ public class Route {
     return cost;
   }
 
-  public Long getTotalDistance() {
-    return totalDistance;
+  public Distance getDistance() {
+    return distance;
   }
 
-  public Route setTotalDistance(long totalDistance) {
-    this.totalDistance = totalDistance;
+  public Route setDistance(Distance distance) {
+    this.distance = distance;
     return this;
   }
 
@@ -43,6 +43,6 @@ public class Route {
         + "\n Total Cost: "
         + cost
         + "\n Approx distance: "
-        + totalDistance;
+        + distance;
   }
 }
