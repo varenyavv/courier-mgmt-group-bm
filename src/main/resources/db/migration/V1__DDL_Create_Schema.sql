@@ -40,13 +40,15 @@ CREATE TABLE distance (
 );
 
 CREATE TABLE route (
-	source_pincode numeric(6) NOT NULL CHECK (source_pincode >= 100000 and source_pincode <= 999999),
-	dest_pincode numeric(6) NOT NULL CHECK (dest_pincode >= 100000 and dest_pincode <= 999999),
+	source_pincode numeric(6) NOT NULL,
+	dest_pincode numeric(6) NOT NULL,
 	hop_counter numeric(1) NOT NULL,
 	next_hop varchar(5) NULL,
 	"transport_mode" transport_mode NULL,
 	CONSTRAINT route_pk PRIMARY KEY (source_pincode, dest_pincode, hop_counter),
-	CONSTRAINT route_fk1 FOREIGN KEY (next_hop) REFERENCES branch(branch_code) ON DELETE CASCADE
+	CONSTRAINT route_fk FOREIGN KEY (source_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT route_fk2 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT route_fk3 FOREIGN KEY (next_hop) REFERENCES branch(branch_code) ON DELETE CASCADE
 );
 
 CREATE TABLE rate_card (
