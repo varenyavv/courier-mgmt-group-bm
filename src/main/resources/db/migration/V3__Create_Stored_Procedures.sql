@@ -17,13 +17,13 @@ declare
 -- No variable declarations at this time.
 
 begin
-   if p_is_insert 
+   if p_is_insert
    then
 	insert
 	into
 	branch
     (
-     branch_code,
+    branch_code,
 	branch_name,
 	add_line,
 	pincode,
@@ -32,9 +32,9 @@ begin
     )
 values (
      'B' || lpad(cast (nextval('seq_branch_code') as varchar), 4, '0'),
-     P_branch_name,
-     P_add_line,
-     P_pincode,
+     p_branch_name,
+     p_add_line,
+     p_pincode,
      p_city,
      upper(p_state));
 else
