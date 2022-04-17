@@ -2,11 +2,13 @@ package bits.mt.ss.dda.groupbm.couriermgmt.service;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotEmpty;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -270,32 +272,102 @@ public class ShipmentService {
 
     switch (latestTrackerRecord.getStatus()) {
       case BOOKED:
-        Branch sourceBranch = routeToFollow.get(0).getBranch();
-
-        if (!forwardShipmentRequest.getReceivingBranchCode().equals(sourceBranch.getBranchCode())) {
-          throw new ForbiddenException(
-              CommonErrors.INVALID_RECEIVING_BRANCH,
-              forwardShipmentRequest.getReceivingBranchCode(),
-              sourceBranch.getBranchCode());
-        }
-
-        newTrackerRecord.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH);
-        newTrackerRecord.setCurrentBranch(sourceBranch);
-
-        shipmentDao.updateShipmentStatus(newTrackerRecord);
-
-        response.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH.toString());
-        response.setReceiveDateTime(
-            newTrackerRecord.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        processBookedShipment(forwardShipmentRequest, routeToFollow, response, newTrackerRecord);
         break;
       case RECEIVED_AT_SOURCE_BRANCH:
       case IN_TRANSIT:
+        forwardShipment(
+            forwardShipmentRequest, routeToFollow, response, latestTrackerRecord, newTrackerRecord);
         break;
       default:
         throw new ForbiddenException(
             CommonErrors.UPDATE_NOT_ALLOWED_AT_BRANCH, latestTrackerRecord.getStatus().toString());
     }
 
+    shipmentDao.updateShipmentStatus(newTrackerRecord);
+
+    response.setReceiveDateTime(
+        newTrackerRecord.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
     return response;
+  }
+
+  private void forwardShipment(
+      ForwardShipmentRequest forwardShipmentRequest,
+      List<Hop> routeToFollow,
+      ForwardShipmentResponse response,
+      ShipmentTracker latestTrackerRecord,
+      ShipmentTracker newTrackerRecord) {
+    Optional<Hop> currentHopOptional =
+        routeToFollow.stream()
+            .filter(hop -> getCurrentHopPredicate(latestTrackerRecord, hop))
+            .findFirst();
+    assertTrue(
+        currentHopOptional.isPresent(),
+        "Current hop can never be null since shipments are following the route as per route table");
+
+    Hop currentHop = currentHopOptional.get();
+
+    if (!forwardShipmentRequest
+        .getReceivingBranchCode()
+        .equals(currentHop.getBranch().getBranchCode())) {
+      throw new ForbiddenException(
+          CommonErrors.INVALID_RECEIVING_BRANCH,
+          forwardShipmentRequest.getReceivingBranchCode(),
+          currentHop.getBranch().getBranchCode());
+    }
+
+    if (null == currentHop.getShipVia()) {
+      // reached destination branch
+      newTrackerRecord.setStatus(Status.RECEIVED_AT_DEST_BRANCH);
+      response.setStatus(Status.RECEIVED_AT_DEST_BRANCH.toString());
+    } else {
+      Hop nextHop = routeToFollow.get(currentHop.getHopCounter() + 1);
+
+      assertNotNull(
+          nextHop,
+          "Next hop can never be null since shipments are following the route as per route table");
+
+      newTrackerRecord.setStatus(Status.IN_TRANSIT);
+      newTrackerRecord.setNexBranch(nextHop.getBranch());
+      newTrackerRecord.setTransportMode(currentHop.getShipVia());
+      response.setStatus(Status.IN_TRANSIT.toString());
+    }
+
+    newTrackerRecord.setCurrentBranch(currentHop.getBranch());
+  }
+
+  private boolean getCurrentHopPredicate(ShipmentTracker latestTrackerRecord, Hop hop) {
+    if (null == latestTrackerRecord.getNexBranch()) {
+      return latestTrackerRecord
+          .getCurrentBranch()
+          .getBranchCode()
+          .equals(hop.getBranch().getBranchCode());
+    }
+    return latestTrackerRecord
+        .getNexBranch()
+        .getBranchCode()
+        .equals(hop.getBranch().getBranchCode());
+  }
+
+  private void processBookedShipment(
+      ForwardShipmentRequest forwardShipmentRequest,
+      List<Hop> routeToFollow,
+      ForwardShipmentResponse response,
+      ShipmentTracker newTrackerRecord) {
+    Hop firstHop = routeToFollow.get(0);
+
+    if (!forwardShipmentRequest
+        .getReceivingBranchCode()
+        .equals(firstHop.getBranch().getBranchCode())) {
+      throw new ForbiddenException(
+          CommonErrors.INVALID_RECEIVING_BRANCH,
+          forwardShipmentRequest.getReceivingBranchCode(),
+          firstHop.getBranch().getBranchCode());
+    }
+
+    newTrackerRecord.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH);
+    newTrackerRecord.setCurrentBranch(firstHop.getBranch());
+    response.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH.toString());
   }
 }

@@ -30,7 +30,7 @@ public enum CommonErrors implements ErrorCode {
   UNAUTHORIZED("100018", "%s"),
   UPDATE_NOT_ALLOWED_AT_BRANCH(
       "100019",
-      "Branch is not allowed to further update the shipment's status as its current status is %s"),
+      "Branch is not allowed to further update the shipment's status as its current status is '%s'"),
   INVALID_RECEIVING_BRANCH(
       "100020", "Receiving branch %s is invalid. Valid receiving branch is %s.");
 
