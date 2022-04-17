@@ -45,4 +45,11 @@ public final class ApplicationConstants {
     public static final String EMPLOYEE_RESOURCE_URI = "/employees";
     public static final String AGENT_RESOURCE_URI = "/agents";
   }
+
+  public static final class Branch {
+
+    private Branch() {}
+
+    public static final String BRANCH_RESOURCE_BASE_URI = "/branches";
+  }
 }

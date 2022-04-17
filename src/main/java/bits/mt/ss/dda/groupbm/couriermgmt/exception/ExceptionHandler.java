@@ -197,6 +197,12 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     return buildErrorResponseEntity(HttpStatus.BAD_REQUEST, error, webRequest);
   }
 
+  @org.springframework.web.bind.annotation.ExceptionHandler(DaoException.class)
+  protected ResponseEntity<Object> handleDaoException(DaoException ex, WebRequest webRequest) {
+    LOG.error("In handleDaoException method: ", ex);
+    return buildErrorResponseEntity(HttpStatus.BAD_REQUEST, ex.getError(), webRequest);
+  }
+
   @org.springframework.web.bind.annotation.ExceptionHandler(UnprocessableEntityException.class)
   protected ResponseEntity<Object> handleUnprocessableEntityException(
       UnprocessableEntityException ex, WebRequest webRequest) {

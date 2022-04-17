@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "APIs to get details of actors - Employee, Agent and Customer")
+@Tag(name = "APIs to Add/Update/Get details of entities - Branch, Employee, Agent and Customer")
 public class PersonController {
 
   @Autowired CustomerDao customerDao;
