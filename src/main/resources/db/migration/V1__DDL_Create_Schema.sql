@@ -1,5 +1,6 @@
 CREATE TYPE status AS ENUM (
 	'BOOKED',
+	'RECEIVED_AT_SOURCE_BRANCH',
 	'IN_TRANSIT',
 	'RECEIVED_AT_DEST_BRANCH',
 	'OUT_FOR_DELIVERY',
@@ -11,18 +12,20 @@ CREATE TYPE transport_mode AS ENUM (
 	'RAILWAY',
 	'ROAD');
 
+CREATE SEQUENCE seq_branch_code START 1;
+
 CREATE TABLE branch (
 	branch_code varchar(5) NOT NULL CHECK (branch_code ~ 'B[0-9]+'),
-	branch_name varchar NULL,
-	add_line varchar NULL,
-	pincode numeric(6) NOT NULL,
+	branch_name varchar NOT NULL UNIQUE,
+	add_line varchar NOT NULL,
+	pincode numeric(6) NOT NULL UNIQUE CHECK (pincode >= 100000 and pincode <= 999999),
 	city varchar NOT NULL,
 	state varchar(2) NOT NULL,
 	CONSTRAINT branch_pk PRIMARY KEY (branch_code)
 );
 
 CREATE TABLE service_pincode (
-	pincode numeric(6) NOT NULL,
+	pincode numeric(6) NOT NULL CHECK (pincode >= 100000 and pincode <= 999999),
 	branch_code varchar(5) NULL,
 	CONSTRAINT service_pincode_pk PRIMARY KEY (pincode),
 	CONSTRAINT service_pincode_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
@@ -44,7 +47,9 @@ CREATE TABLE route (
 	next_hop varchar(5) NULL,
 	"transport_mode" transport_mode NULL,
 	CONSTRAINT route_pk PRIMARY KEY (source_pincode, dest_pincode, hop_counter),
-	CONSTRAINT route_fk1 FOREIGN KEY (next_hop) REFERENCES branch(branch_code) ON DELETE CASCADE
+	CONSTRAINT route_fk FOREIGN KEY (source_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT route_fk2 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT route_fk3 FOREIGN KEY (next_hop) REFERENCES branch(branch_code) ON DELETE CASCADE
 );
 
 CREATE TABLE rate_card (
@@ -70,7 +75,7 @@ CREATE TABLE agent (
 	contact_num numeric(10) NOT NULL,
 	"name" varchar NOT NULL,
 	add_line varchar NOT NULL,
-	pincode numeric(6) NOT NULL,
+	pincode numeric(6) NOT NULL CHECK (pincode >= 100000 and pincode <= 999999),
 	city varchar NOT NULL,
 	state varchar(2) NOT NULL,
 	branch_code varchar(5) NOT NULL,
@@ -78,14 +83,14 @@ CREATE TABLE agent (
 	CONSTRAINT agent_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
 );
 
-CREATE SEQUENCE employee_id START 100001;
+CREATE SEQUENCE seq_employee_id START 100001;
 
 CREATE TABLE employee (
 	employee_id numeric(6) NOT NULL,
 	contact_num numeric(10) NOT NULL,
 	"name" varchar NOT NULL,
 	add_line varchar NOT NULL,
-	pincode numeric(6) NOT NULL,
+	pincode numeric(6) NOT NULL CHECK (pincode >= 100000 and pincode <= 999999),
 	city varchar NOT NULL,
 	state varchar(2) NOT NULL,
 	branch_code varchar(5) NOT NULL,
@@ -94,8 +99,8 @@ CREATE TABLE employee (
 	CONSTRAINT employee_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
 );
 
-CREATE SEQUENCE shipment_id START 100001;
-CREATE SEQUENCE consignment_num START 1;
+CREATE SEQUENCE seq_shipment_id START 100001;
+CREATE SEQUENCE seq_consignment_num START 1;
 
 CREATE TABLE shipment (
 	shipment_id numeric NOT NULL,
@@ -105,6 +110,7 @@ CREATE TABLE shipment (
 	length_cm numeric NOT NULL,
 	width_cm numeric NOT NULL,
 	height_cm numeric NOT NULL,
+	source_pincode numeric(6) NOT NULL,
 	dest_add_line varchar NOT NULL,
 	dest_pincode numeric(6) NOT NULL,
 	dest_city varchar NOT NULL,
@@ -115,10 +121,11 @@ CREATE TABLE shipment (
 	CONSTRAINT shipment_pk PRIMARY KEY (shipment_id),
 	CONSTRAINT shipment_un UNIQUE (consignment_num),
 	CONSTRAINT shipment_fk FOREIGN KEY (customer_id) REFERENCES customer(contact_num) ON DELETE CASCADE,
-	CONSTRAINT shipment_fk_1 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
+	CONSTRAINT shipment_fk_1 FOREIGN KEY (source_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT shipment_fk_2 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
 );
 
-CREATE SEQUENCE shipment_tracker_id START 1;
+CREATE SEQUENCE seq_shipment_tracker_id START 1;
 
 CREATE TABLE shipment_tracker (
 	shipment_tracker_id serial NOT NULL,

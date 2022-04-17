@@ -1,11 +1,11 @@
 INSERT INTO public.branch (branch_code,branch_name,add_line,pincode,city,state) VALUES
-	 ('B0001','Noida HO','Sector-18', 201301, 'Noida', 'UP'),
-	 ('B0002','Delhi HO','CP', 110001,'New Delhi', 'DL'),
-	 ('B0003','Mumbai HO','Bandra', 400001, 'Mumbai', 'MH'),
-	 ('B0004','Kolkata HO','Somewhere', 300001,'Kolkata', 'WB'),
-	 ('B0005','Bangalore HO','MG Road', 510001, 'Bengaluru','KN'),
-	 ('B0006','Chennai HO','Civil lines',601011, 'Chennai', 'TN'),
-	 ('B0007','Hyderabad Main Branch','MG Road',701331,'Hyderabad','TS');
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Noida HO','Sector-18', 201301, 'Noida', 'UP'),
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Delhi HO','CP', 110001,'New Delhi', 'DL'),
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Mumbai HO','Bandra', 400001, 'Mumbai', 'MH'),
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Kolkata HO','Somewhere', 300001,'Kolkata', 'WB'),
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Bangalore HO','MG Road', 510001, 'Bengaluru','KN'),
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Chennai HO','Civil lines',601011, 'Chennai', 'TN'),
+	 ('B'||lpad(cast (nextval('seq_branch_code') as varchar),4,'0'),'Hyderabad Main Branch','MG Road',701331,'Hyderabad','TS');
 
 INSERT INTO public.rate_card (distance_from_km,distance_to_km,base_rate,extra_weight_factor) VALUES
 	 (0,50,50,10),
@@ -62,10 +62,10 @@ INSERT INTO public.agent (contact_num,name,add_line,pincode,city,state,branch_co
     (8810101020,'Virat','KD Road',701332,'Hyderabad','TS','B0007');
 
 INSERT INTO public.employee (employee_id, contact_num,name,add_line,pincode,city,state,branch_code) VALUES
-    (nextval('employee_id'),7810101010,'Surya','Sector-17',201301,'Noida','UP','B0001'),
-    (nextval('employee_id'),7810101011,'Kartik','23 lane',110002,'New Delhi','DL','B0002'),
-    (nextval('employee_id'),7810101012,'Ramesh','A-2344, ABC Society',400001,'Mumbai','MH','B0003'),
-    (nextval('employee_id'),7810101013,'Gaurav','F-345, 10th Avenue',300001,'Kolkata','WB','B0004'),
-    (nextval('employee_id'),7810101014,'Rishi','F-111, 14th Avenue',510002,'Bengaluru','KN','B0005'),
-    (nextval('employee_id'),7810101015,'Vipin','Mall Road',601012,'Chennai','TN','B0006'),
-    (nextval('employee_id'),7810101016,'Vimal','KD Road',701332,'Hyderabad','TS','B0007');
+    (nextval('seq_employee_id'),7810101010,'Surya','Sector-17',201301,'Noida','UP','B0001'),
+    (nextval('seq_employee_id'),7810101011,'Kartik','23 lane',110002,'New Delhi','DL','B0002'),
+    (nextval('seq_employee_id'),7810101012,'Ramesh','A-2344, ABC Society',400001,'Mumbai','MH','B0003'),
+    (nextval('seq_employee_id'),7810101013,'Gaurav','F-345, 10th Avenue',300001,'Kolkata','WB','B0004'),
+    (nextval('seq_employee_id'),7810101014,'Rishi','F-111, 14th Avenue',510002,'Bengaluru','KN','B0005'),
+    (nextval('seq_employee_id'),7810101015,'Vipin','Mall Road',601012,'Chennai','TN','B0006'),
+    (nextval('seq_employee_id'),7810101016,'Vimal','KD Road',701332,'Hyderabad','TS','B0007');

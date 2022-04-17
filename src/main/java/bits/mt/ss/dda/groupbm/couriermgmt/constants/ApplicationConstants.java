@@ -32,7 +32,7 @@ public final class ApplicationConstants {
     private Shipment() {}
 
     public static final String SHIPMENT_RESOURCE_BASE_URI = "/shipments";
-    public static final String BOOK_SHIPMENT_URI = "/book";
+    public static final String FORWARD_SHIPMENT_URI = "/{consignment_num}/forward";
   }
 
   public static final class Person {

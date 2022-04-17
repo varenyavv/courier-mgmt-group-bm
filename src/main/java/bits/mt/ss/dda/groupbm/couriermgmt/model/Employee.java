@@ -2,14 +2,16 @@ package bits.mt.ss.dda.groupbm.couriermgmt.model;
 
 public class Employee {
 
-  private final long employeeId;
-  private final long contactNumber;
-  private final String name;
-  private final String addressLine;
-  private final long pincode;
-  private final String city;
-  private final String state;
-  private final Branch branch;
+  private long employeeId;
+  private long contactNumber;
+  private String name;
+  private String addressLine;
+  private long pincode;
+  private String city;
+  private String state;
+  private Branch branch;
+
+  public Employee() {}
 
   public Employee(
       long employeeId,
@@ -28,6 +30,46 @@ public class Employee {
     this.city = city;
     this.state = state;
     this.branch = branch;
+  }
+
+  public Employee setEmployeeId(long employeeId) {
+    this.employeeId = employeeId;
+    return this;
+  }
+
+  public Employee setContactNumber(long contactNumber) {
+    this.contactNumber = contactNumber;
+    return this;
+  }
+
+  public Employee setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public Employee setAddressLine(String addressLine) {
+    this.addressLine = addressLine;
+    return this;
+  }
+
+  public Employee setPincode(long pincode) {
+    this.pincode = pincode;
+    return this;
+  }
+
+  public Employee setCity(String city) {
+    this.city = city;
+    return this;
+  }
+
+  public Employee setState(String state) {
+    this.state = state;
+    return this;
+  }
+
+  public Employee setBranch(Branch branch) {
+    this.branch = branch;
+    return this;
   }
 
   public long getEmployeeId() {

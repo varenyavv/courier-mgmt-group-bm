@@ -37,7 +37,8 @@ public class RouterDao {
       "INSERT INTO distance (source_pincode,dest_pincode,distance_km) VALUES (?,?,?)";
 
   private static final String INSERT_INTO_ROUTE =
-      "INSERT INTO route (source_pincode,dest_pincode,hop_counter,next_hop,transport_mode) VALUES (?,?,?,?,?::transport_mode)";
+      "INSERT INTO route (source_pincode,dest_pincode,hop_counter,next_hop,transport_mode) "
+          + "VALUES (?,?,?,?,?::transport_mode)";
 
   private static final String SELECT_DISTANCE_BETWEEN_SOURCE_AND_DESTINATION =
       "SELECT d.distance_km, d.source_pincode, source.branch_code as source_branch, "
@@ -55,7 +56,15 @@ public class RouterDao {
           + "where d.source_pincode=? and  d.dest_pincode=?";
 
   private static final String SELECT_ROUTE_BETWEEN_SOURCE_AND_DESTINATION =
-      "SELECT b.branch_code,b.branch_name,b.add_line,b.pincode,b.city,b.state,r.transport_mode,r.hop_counter FROM route r INNER JOIN branch b ON b.branch_code = r.next_hop where r.source_pincode=? and  r.dest_pincode=? order by r.hop_counter";
+      "SELECT b.branch_code,b.branch_name,"
+          + "b.add_line,b.pincode,b.city,b.state,"
+          + "r.transport_mode,r.hop_counter "
+          + "FROM route r "
+          + "INNER JOIN branch b "
+          + "ON b.branch_code = r.next_hop "
+          + "where r.source_pincode=? "
+          + "and  r.dest_pincode=? "
+          + "order by r.hop_counter";
 
   public RateCard getRateCardByDistance(double distanceInKm) {
 
