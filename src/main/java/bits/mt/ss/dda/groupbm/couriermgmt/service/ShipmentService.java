@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.request.ForwardShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.BookShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.DeliverShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.ForwardShipmentResponse;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.ShipmentHistoryRecord;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.TrackShipmentResponse;
 
 @Service
 public class ShipmentService {
@@ -470,5 +473,75 @@ public class ShipmentService {
         .setStatus(deliverShipmentRequest.getStatus())
         .setDeliveryDateTime(
             newTrackerRecord.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+  }
+
+  public TrackShipmentResponse trackShipment(String consignmentNumber) {
+
+    Shipment shipment = shipmentDao.getShipmentByConsignmentNumber(consignmentNumber);
+
+    if (null == shipment) {
+      throw new EntityNotFoundException(
+          CommonErrors.ENTITY_NOT_FOUND, "Shipment", "consignment number", consignmentNumber);
+    }
+
+    List<ShipmentTracker> shipmentHistorySortedByDateDesc =
+        shipmentDao.getShipmentHistoryByConsignmentNumber(consignmentNumber);
+    assertNotEmpty(shipmentHistorySortedByDateDesc, "Shipment history must not be empty by now.");
+
+    return new TrackShipmentResponse()
+        .setConsignmentNumber(shipment.getConsignmentNumber())
+        .setSourcePincode(shipment.getSourcePincode())
+        .setDestinationAddress(
+            shipment.getDestAddressLine(),
+            shipment.getDestCity(),
+            shipment.getDestPincode(),
+            shipment.getDestState())
+        .setDistanceInKm(shipment.getDistanceInKm())
+        .setBookingAmount(shipment.getBookingAmount())
+        .setStatus(shipment.getStatus().toString())
+        .setShipmentHistory(
+            shipmentHistorySortedByDateDesc.stream()
+                .map(
+                    shipmentTracker ->
+                        new ShipmentHistoryRecord()
+                            .setCurrentBranch(
+                                shipmentTracker.getCurrentBranch() != null
+                                    ? shipmentTracker.getCurrentBranch().getBranchCode()
+                                        + " "
+                                        + shipmentTracker.getCurrentBranch().getBranchName()
+                                        + ", "
+                                        + shipmentTracker.getCurrentBranch().getCity()
+                                        + ", "
+                                        + shipmentTracker.getCurrentBranch().getState()
+                                    : null)
+                            .setNexBranch(
+                                shipmentTracker.getNexBranch() != null
+                                    ? shipmentTracker.getNexBranch().getBranchCode()
+                                        + " "
+                                        + shipmentTracker.getNexBranch().getBranchName()
+                                        + ", "
+                                        + shipmentTracker.getNexBranch().getCity()
+                                        + ", "
+                                        + shipmentTracker.getNexBranch().getState()
+                                    : null)
+                            .setTransportMode(
+                                shipmentTracker.getTransportMode() != null
+                                    ? shipmentTracker.getTransportMode().toString()
+                                    : null)
+                            .setStatus(shipmentTracker.getStatus().toString())
+                            .setStatusRemarks(shipmentTracker.getStatusRemarks())
+                            .setCreationDateTime(
+                                shipmentTracker
+                                    .getCreationDateTime()
+                                    .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                            .setAgentName(
+                                shipmentTracker.getAgent() != null
+                                    ? shipmentTracker.getAgent().getName()
+                                    : null)
+                            .setAgentContact(
+                                shipmentTracker.getAgent() != null
+                                    ? shipmentTracker.getAgent().getContactNumber()
+                                    : null))
+                .collect(Collectors.toList()));
   }
 }

@@ -115,6 +115,11 @@ public class RowMapper {
         .setConsignmentNumber(rs.getString("consignment_num"))
         .setSourcePincode(rs.getLong("source_pincode"))
         .setDestPincode(rs.getLong("dest_pincode"))
+        .setDestAddressLine(rs.getString("dest_add_line"))
+        .setDestCity(rs.getString("dest_city"))
+        .setDestState(rs.getString("dest_state"))
+        .setDistanceInKm(rs.getLong("distance_km"))
+        .setBookingAmount(rs.getLong("booking_amount"))
         .setStatus(Status.valueOf(rs.getString("status")));
   }
 
@@ -152,7 +157,7 @@ public class RowMapper {
               rs.getString("next_state")));
     }
 
-    if (ObjectUtils.isNotEmpty(rs.getLong("employee_id"))) {
+    if (rs.getLong("employee_id") > 0) {
       shipmentTracker.setEmployee(
           new Employee()
               .setEmployeeId(rs.getLong("employee_id"))
@@ -160,7 +165,7 @@ public class RowMapper {
               .setName(rs.getString("emp_name")));
     }
 
-    if (ObjectUtils.isNotEmpty(rs.getLong("agent_contact"))) {
+    if (rs.getLong("agent_contact") > 0) {
       shipmentTracker.setAgent(
           new Agent()
               .setContactNumber(rs.getLong("agent_contact"))

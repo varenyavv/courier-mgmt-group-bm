@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,6 +31,7 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.request.ForwardShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.BookShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.DeliverShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.ForwardShipmentResponse;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.TrackShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.service.ShipmentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -163,6 +165,29 @@ public class ShipmentController {
         shipmentService.deliverShipment(agentContactNumber, deliverShipmentRequest);
 
     response.setData(deliverShipmentResponse);
+
+    response.setLinks(
+        new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
+
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(path = ApplicationConstants.Shipment.TRACK_SHIPMENT_URI)
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "404", description = ApplicationConstants.HTTP_404_NOT_FOUND),
+        @ApiResponse(responseCode = "401", description = ApplicationConstants.HTTP_401_UNAUTHORIZED)
+      })
+  @Operation(summary = "Api to track the complete history of a shipment.")
+  public ResponseEntity<BaseResponse<TrackShipmentResponse>> trackShipment(
+      @PathVariable("consignment_num") String consignmentNumber) {
+
+    BaseResponse<TrackShipmentResponse> response = new BaseResponse<>();
+
+    TrackShipmentResponse trackShipmentResponse = shipmentService.trackShipment(consignmentNumber);
+
+    response.setData(trackShipmentResponse);
 
     response.setLinks(
         new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));

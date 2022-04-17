@@ -34,6 +34,7 @@ public final class ApplicationConstants {
     public static final String SHIPMENT_RESOURCE_BASE_URI = "/shipments";
     public static final String FORWARD_SHIPMENT_URI = "/{consignment_num}/forward";
     public static final String DELIVER_SHIPMENT_URI = "/{consignment_num}/deliver";
+    public static final String TRACK_SHIPMENT_URI = "/{consignment_num}";
   }
 
   public static final class Person {
