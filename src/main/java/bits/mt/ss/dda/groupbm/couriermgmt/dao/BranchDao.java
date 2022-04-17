@@ -19,6 +19,9 @@ public class BranchDao {
   private static final String SELECT_BRANCH_BY_BRANCH_CODE =
       "SELECT * FROM branch where branch_code = ?";
 
+  private static final String SELECT_BRANCH_CODE_BY_PINCODE =
+      "SELECT branch_code FROM service_pincode where pincode = ?";
+
   public Branch getBranchByBranchCode(String branchCode) {
 
     Branch branch = null;
@@ -32,5 +35,9 @@ public class BranchDao {
       }
     }
     return branch;
+  }
+
+  public String getBranchCodeByPincode(long pincode) {
+    return jdbcTemplate.queryForObject(SELECT_BRANCH_CODE_BY_PINCODE, String.class, pincode);
   }
 }

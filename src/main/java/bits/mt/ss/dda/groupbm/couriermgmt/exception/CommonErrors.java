@@ -20,7 +20,7 @@ public enum CommonErrors implements ErrorCode {
   MISSING_PATH_VARIABLE("100009", "Missing path variable"),
   ILLEGAL_ARGUMENT_EXCEPTION("100010", CommonErrors.EXCEPTION_MESSAGE_TO_BE_USED),
   UNHANDLED_EXCEPTION("100011", "System error. Please contact help desk for assistance."),
-  FIELD_ERROR("100012", "%s %s"),
+  FIELD_ERROR("100012", "%s - %s"),
   GLOBAL_ERROR("100013", "%s %s"),
   MEDIA_TYPE_NOT_SUPPORTED(
       "100014", "Content-Type header does not contain a supported Media Type."),
@@ -28,11 +28,22 @@ public enum CommonErrors implements ErrorCode {
   SERVICE_NOT_AVAILABLE("100016", "%s"),
   ENTITY_NOT_FOUND("100017", "%s having %s: %s not found!"),
   UNAUTHORIZED("100018", "%s"),
-  UPDATE_NOT_ALLOWED_AT_BRANCH(
-      "100019",
-      "Branch is not allowed to further update the shipment's status as its current status is '%s'"),
   INVALID_RECEIVING_BRANCH(
-      "100020", "Receiving branch %s is invalid. Valid receiving branch is %s.");
+      "100019", "Receiving branch %s is invalid. Valid receiving branch is %s."),
+  UPDATE_NOT_ALLOWED_AT_BRANCH(
+      "100020",
+      "Branch is not allowed to further update the shipment's status as its current status is '%s'"),
+  UPDATE_NOT_ALLOWED_BY_AGENT(
+      "100021",
+      "Agent is not allowed to update the shipment's status as it is not yet received at the destination branch."),
+  SHIPMENT_ALREADY_DELIVERED(
+      "100022",
+      "Agent is not allowed to attempt the delivery as the shipment is already delivered."),
+  INVALID_DELIVERY_ATTEMPT(
+      "100023", "Status in delivery request '%s' is invalid. Allowed values are [%s]."),
+  AGENT_NOT_AUTHORIZED(
+      "100024",
+      "Agent %s is not allowed to attempt the delivery. Agent %s is already assigned to attempt its delivery.");
 
   private static final String EXCEPTION_MESSAGE_TO_BE_USED = "%s";
 

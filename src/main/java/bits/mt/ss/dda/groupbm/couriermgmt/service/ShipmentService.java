@@ -34,8 +34,10 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.Shipment;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.ShipmentTracker;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.BookShipmentRequest;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.request.DeliverShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.ForwardShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.BookShipmentResponse;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.DeliverShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.ForwardShipmentResponse;
 
 @Service
@@ -369,5 +371,104 @@ public class ShipmentService {
     newTrackerRecord.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH);
     newTrackerRecord.setCurrentBranch(firstHop.getBranch());
     response.setStatus(Status.RECEIVED_AT_SOURCE_BRANCH.toString());
+  }
+
+  public void validateDeliverShipmentRequest(
+      long agentContactNumber, DeliverShipmentRequest deliverShipmentRequest) {
+
+    Agent agent = agentDao.getAgentById(agentContactNumber);
+
+    if (null == agent) {
+      throw new UnauthorizedException(
+          CommonErrors.UNAUTHORIZED,
+          String.format("Agent with contact number %s doesn't exist", agentContactNumber));
+    }
+
+    Shipment shipment =
+        shipmentDao.getShipmentByConsignmentNumber(deliverShipmentRequest.getConsignmentNumber());
+
+    if (null == shipment) {
+      throw new EntityNotFoundException(
+          CommonErrors.ENTITY_NOT_FOUND,
+          "Shipment",
+          "consignment number",
+          deliverShipmentRequest.getConsignmentNumber());
+    }
+
+    String destinationBranchCode = branchDao.getBranchCodeByPincode(shipment.getDestPincode());
+
+    if (!agent.getBranch().getBranchCode().equals(destinationBranchCode)) {
+      throw new UnauthorizedException(
+          CommonErrors.UNAUTHORIZED,
+          String.format(
+              "Agent with contact number %s is not allowed to attempt the delivery of the shipment "
+                  + "since s/he does not belong to the recipient's home branch %s.",
+              agentContactNumber, destinationBranchCode));
+    }
+  }
+
+  public DeliverShipmentResponse deliverShipment(
+      long agentContactNumber, DeliverShipmentRequest deliverShipmentRequest) {
+
+    Agent agent = agentDao.getAgentById(agentContactNumber);
+    assertNotNull(agent, "Agent must not be null by now.");
+
+    List<ShipmentTracker> shipmentHistorySortedByDateDesc =
+        shipmentDao.getShipmentHistoryByConsignmentNumber(
+            deliverShipmentRequest.getConsignmentNumber());
+    assertNotEmpty(shipmentHistorySortedByDateDesc, "Shipment history must not be empty by now.");
+
+    ShipmentTracker latestTrackerRecord = shipmentHistorySortedByDateDesc.get(0);
+
+    switch (latestTrackerRecord.getStatus()) {
+      case RECEIVED_AT_DEST_BRANCH:
+      case UNDELIVERED:
+        if (!Status.OUT_FOR_DELIVERY.toString().equals(deliverShipmentRequest.getStatus())) {
+          throw new ForbiddenException(
+              CommonErrors.INVALID_DELIVERY_ATTEMPT,
+              deliverShipmentRequest.getStatus(),
+              Status.OUT_FOR_DELIVERY.toString());
+        }
+
+        break;
+      case OUT_FOR_DELIVERY:
+        if (!Status.DELIVERED.toString().equals(deliverShipmentRequest.getStatus())
+            && !Status.UNDELIVERED.toString().equals(deliverShipmentRequest.getStatus())) {
+          throw new ForbiddenException(
+              CommonErrors.INVALID_DELIVERY_ATTEMPT,
+              deliverShipmentRequest.getStatus(),
+              Status.DELIVERED + ", " + Status.UNDELIVERED);
+        }
+
+        if (agent.getContactNumber() != latestTrackerRecord.getAgent().getContactNumber()) {
+          throw new ForbiddenException(
+              CommonErrors.AGENT_NOT_AUTHORIZED,
+              agent.getName(),
+              latestTrackerRecord.getAgent().getName());
+        }
+
+        break;
+      case DELIVERED:
+        throw new ForbiddenException(CommonErrors.SHIPMENT_ALREADY_DELIVERED);
+      default:
+        throw new ForbiddenException(CommonErrors.UPDATE_NOT_ALLOWED_BY_AGENT);
+    }
+
+    ShipmentTracker newTrackerRecord =
+        new ShipmentTracker()
+            .setShipment(latestTrackerRecord.getShipment())
+            .setCurrentBranch(latestTrackerRecord.getCurrentBranch())
+            .setAgent(agent)
+            .setCreationDateTime(LocalDateTime.now())
+            .setStatus(Status.getByValue(deliverShipmentRequest.getStatus()))
+            .setStatusRemarks(deliverShipmentRequest.getStatusRemarks());
+
+    shipmentDao.updateShipmentStatus(newTrackerRecord);
+
+    return new DeliverShipmentResponse()
+        .setConsignmentNumber(deliverShipmentRequest.getConsignmentNumber())
+        .setStatus(deliverShipmentRequest.getStatus())
+        .setDeliveryDateTime(
+            newTrackerRecord.getCreationDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
   }
 }

@@ -25,8 +25,10 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.Route;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.BaseResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.base.Links;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.BookShipmentRequest;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.request.DeliverShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.request.ForwardShipmentRequest;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.BookShipmentResponse;
+import bits.mt.ss.dda.groupbm.couriermgmt.model.response.DeliverShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.model.response.ForwardShipmentResponse;
 import bits.mt.ss.dda.groupbm.couriermgmt.service.ShipmentService;
 
@@ -119,6 +121,48 @@ public class ShipmentController {
     ForwardShipmentResponse forwardShipmentResponse =
         shipmentService.forwardShipment(employeeId, forwardShipmentRequest, routeToFollow);
     response.setData(forwardShipmentResponse);
+
+    response.setLinks(
+        new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
+
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping(path = ApplicationConstants.Shipment.DELIVER_SHIPMENT_URI)
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "404", description = ApplicationConstants.HTTP_404_NOT_FOUND),
+        @ApiResponse(
+            responseCode = "401",
+            description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
+        @ApiResponse(responseCode = "403", description = ApplicationConstants.HTTP_403_FORBIDDEN)
+      })
+  @Operation(
+      summary = "Api to deliver a shipment.",
+      description =
+          "Once a shipment is received at its destination branch, "
+              + "agents use this API to attempt to deliver it at the destination address.")
+  public ResponseEntity<BaseResponse<DeliverShipmentResponse>> deliverShipment(
+      @RequestHeader
+          @Parameter(
+              description =
+                  "Contact number of the agent who is going to attempt the shipment's delivery. "
+                      + "He should belong to the destination branch.")
+          long agentContactNumber,
+      @PathVariable("consignment_num") String consignmentNumber,
+      @RequestBody @Valid DeliverShipmentRequest deliverShipmentRequest) {
+
+    BaseResponse<DeliverShipmentResponse> response = new BaseResponse<>();
+
+    deliverShipmentRequest.setConsignmentNumber(consignmentNumber);
+
+    shipmentService.validateDeliverShipmentRequest(agentContactNumber, deliverShipmentRequest);
+
+    DeliverShipmentResponse deliverShipmentResponse =
+        shipmentService.deliverShipment(agentContactNumber, deliverShipmentRequest);
+
+    response.setData(deliverShipmentResponse);
 
     response.setLinks(
         new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));

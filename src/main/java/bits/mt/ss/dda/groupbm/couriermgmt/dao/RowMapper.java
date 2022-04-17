@@ -161,8 +161,8 @@ public class RowMapper {
     }
 
     if (ObjectUtils.isNotEmpty(rs.getLong("agent_contact"))) {
-      shipmentTracker.setEmployee(
-          new Employee()
+      shipmentTracker.setAgent(
+          new Agent()
               .setContactNumber(rs.getLong("agent_contact"))
               .setName(rs.getString("agent_name")));
     }
