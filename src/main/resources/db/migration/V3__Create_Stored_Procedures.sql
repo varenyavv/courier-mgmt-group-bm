@@ -54,7 +54,7 @@ exception
 when others then
         p_error := sqlerrm;
 end
-$$
+$$;
 
 -- Agent_upsert Procedure
 
