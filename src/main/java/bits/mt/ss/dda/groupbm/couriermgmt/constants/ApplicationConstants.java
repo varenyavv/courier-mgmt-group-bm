@@ -13,6 +13,16 @@ public final class ApplicationConstants {
   public static final String HTTP_409_CONFLICT = "Conflict";
   public static final String HTTP_422_UNPROCESSABLE_ENTITY = "Unprocessable Entity";
 
+  public static final class Documentation {
+
+    private Documentation() {}
+
+    public static final String OPERATION_API_DESC =
+        "APIs to Add/Update/Get details of entities - Branch, Employee, Agent and Customer. "
+            + "It also has an API to add pincodes which are served by a given branch.";
+    public static final String OPERATION_API_TAG = "APIs to support Operations";
+  }
+
   public static final class Route {
 
     private Route() {}

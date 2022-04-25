@@ -4,6 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import bits.mt.ss.dda.groupbm.couriermgmt.exception.CommonErrors;
 import bits.mt.ss.dda.groupbm.couriermgmt.exception.DaoException;
@@ -29,6 +31,9 @@ public class BranchDao {
   private static final String SELECT_BRANCH_CODE_BY_PINCODE =
       "SELECT branch_code FROM service_pincode where pincode = ?";
 
+  private static final String INSERT_INTO_SERVICE_PINCODE =
+      "INSERT INTO service_pincode (pincode, branch_code) VALUES (?, ?)";
+
   public Branch getBranchByBranchCode(String branchCode) {
 
     Branch branch = null;
@@ -46,6 +51,17 @@ public class BranchDao {
 
   public String getBranchCodeByPincode(long pincode) {
     return jdbcTemplate.queryForObject(SELECT_BRANCH_CODE_BY_PINCODE, String.class, pincode);
+  }
+
+  @Transactional
+  public void addServicePincodes(List<Long> servicePincodes, String branchCode) {
+    try {
+      servicePincodes.forEach(
+          servicePincode ->
+              jdbcTemplate.update(INSERT_INTO_SERVICE_PINCODE, servicePincode, branchCode));
+    } catch (Exception e) {
+      throw new DaoException(CommonErrors.GLOBAL_ERROR, "DB Error", e.getMessage());
+    }
   }
 
   public String upsertBranch(Branch createBranchRequest, boolean isInsert) {

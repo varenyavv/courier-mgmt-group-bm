@@ -126,3 +126,72 @@ when others then
         p_error := sqlerrm;
 end
 $$;
+
+-- Procedure to insert or update employee
+
+create or replace
+procedure upsert_employee
+    (
+    p_error inout VARCHAR,
+    p_is_insert in BOOLEAN,
+    p_employee_id inout employee.employee_id%type,
+    p_contact_num in employee.contact_num%type,
+    p_name in employee.name%type,
+    p_branch_code in employee.branch_code%type,
+    p_add_line in employee.add_line%type,
+    p_pincode in employee.pincode%type,
+    p_city in employee.city%type,
+    p_state in employee.state%type
+    )
+language plpgsql
+as
+$$
+declare
+-- No variable declarations at this time.
+
+begin
+   if p_is_insert
+   then
+    p_employee_id = nextval('seq_employee_id');
+	insert
+	into
+	employee
+    (
+    employee_id,
+	contact_num,
+	name,
+    branch_code,
+	add_line,
+	pincode,
+	city,
+	state
+    )
+values (
+     p_employee_id,
+	 p_contact_num,
+     p_name,
+     p_branch_code,
+     p_add_line,
+     p_pincode,
+     p_city,
+     upper(p_state));
+else
+    update
+	employee
+set
+    contact_num = p_contact_num,
+    branch_code = p_branch_code,
+	name = p_name,
+	add_line = p_add_line,
+	pincode = p_pincode,
+	city = p_city,
+	state = upper(p_state)
+where
+	employee_id = p_employee_id;
+end if;
+
+exception
+when others then
+        p_error := sqlerrm;
+end
+$$;
