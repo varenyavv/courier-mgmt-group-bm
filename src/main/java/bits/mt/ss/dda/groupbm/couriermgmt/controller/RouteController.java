@@ -1,5 +1,12 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.controller;
 
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_QUOTE_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_QUOTE_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_ROUTE_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_ROUTE_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_QUOTE;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_ROUTE;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,46 +28,11 @@ import bits.mt.ss.dda.groupbm.couriermgmt.service.RandomRouteAllocator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(
-    name = "APIs to get route and quotes",
-    description =
-        "These APIs help in determining the route between source and destination pincodes "
-            + "as well as evaluating the cost of shipment depending upon its dimensions and distance to travel. "
-            + "It also helps in verifying serviceability between a given source and destination addresses "
-            + "based on their respective pincodes.")
 public class RouteController {
 
   @Autowired RandomRouteAllocator randomRouteAllocator;
-
-  @ResponseStatus(HttpStatus.OK)
-  @PostMapping(path = ApplicationConstants.Route.RESOURCE_ROOT_URI)
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST),
-        @ApiResponse(
-            responseCode = "401",
-            description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
-        @ApiResponse(responseCode = "403", description = ApplicationConstants.HTTP_403_FORBIDDEN),
-        @ApiResponse(
-            responseCode = "409",
-            description = ApplicationConstants.HTTP_422_UNPROCESSABLE_ENTITY)
-      })
-  @Operation(summary = "Api to find route between source and destination pin codes")
-  public ResponseEntity<BaseResponse<Route>> findRoute(
-      @RequestBody GetRouteRequest getRouteRequest) {
-
-    BaseResponse<Route> response = new BaseResponse<>();
-
-    response.setLinks(
-        new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
-
-    response.setData(randomRouteAllocator.findRoute(getShipment(getRouteRequest)));
-
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping(path = ApplicationConstants.Quote.RESOURCE_ROOT_URI)
@@ -76,13 +48,9 @@ public class RouteController {
             description = ApplicationConstants.HTTP_422_UNPROCESSABLE_ENTITY)
       })
   @Operation(
-      summary = "Api to get quote between source and destination pin codes",
-      description =
-          "Depending upon the dimensions and weight of the shipment "
-              + "as well as the distance between source and destination address, "
-              + "this API returns the total cost of the shipment. "
-              + "It also helps in checking the serviceability "
-              + "between a given source and destination address based on their respective pincodes")
+      tags = {TAG_QUOTE},
+      summary = GET_QUOTE_SUMMARY,
+      description = GET_QUOTE_DESC)
   public ResponseEntity<BaseResponse<GetQuoteResponse>> getQuote(
       @RequestBody GetRouteRequest getQuoteRequest) {
 
@@ -94,6 +62,36 @@ public class RouteController {
     Route route = randomRouteAllocator.findRoute(getShipment(getQuoteRequest));
 
     response.setData(new GetQuoteResponse(route.getDistance().getDistanceInKm(), route.getCost()));
+
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(path = ApplicationConstants.Route.RESOURCE_ROOT_URI)
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST),
+        @ApiResponse(
+            responseCode = "401",
+            description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
+        @ApiResponse(responseCode = "403", description = ApplicationConstants.HTTP_403_FORBIDDEN),
+        @ApiResponse(
+            responseCode = "409",
+            description = ApplicationConstants.HTTP_422_UNPROCESSABLE_ENTITY)
+      })
+  @Operation(
+      tags = {TAG_ROUTE},
+      summary = GET_ROUTE_SUMMARY,
+      description = GET_ROUTE_DESC)
+  public ResponseEntity<BaseResponse<Route>> findRoute(
+      @RequestBody GetRouteRequest getRouteRequest) {
+
+    BaseResponse<Route> response = new BaseResponse<>();
+
+    response.setLinks(
+        new Links(ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
+
+    response.setData(randomRouteAllocator.findRoute(getShipment(getRouteRequest)));
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }

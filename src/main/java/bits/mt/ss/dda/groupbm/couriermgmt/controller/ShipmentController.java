@@ -1,5 +1,15 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.controller;
 
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.BOOK_SHIPMENT_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.BOOK_SHIPMENT_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.DELIVER_SHIPMENT_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.DELIVER_SHIPMENT_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.FORWARD_SHIPMENT_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.FORWARD_SHIPMET_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.SHIPMENT_HISTORY_API_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.SHIPMENT_HISTORY_API_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_SHIPMENT_HISTORY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_SHIPMENT_LIFECYCLE;
 import static org.hibernate.validator.internal.util.Contracts.assertNotEmpty;
 
 import java.util.List;
@@ -38,10 +48,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "APIs related to Shipment lifecycle")
 @RequestMapping(path = ApplicationConstants.Shipment.SHIPMENT_RESOURCE_BASE_URI)
 public class ShipmentController {
 
@@ -55,11 +63,9 @@ public class ShipmentController {
         @ApiResponse(responseCode = "401", description = ApplicationConstants.HTTP_401_UNAUTHORIZED)
       })
   @Operation(
-      summary = "Api to book a shipment.",
-      description =
-          "Agents use this API to book a shipment after receiving the booking amount from the customer. "
-              + "Once booked, it returns a shipment Id and a consignment number "
-              + "using which customers can track this shipment.")
+      tags = {TAG_SHIPMENT_LIFECYCLE},
+      summary = BOOK_SHIPMENT_SUMMARY,
+      description = BOOK_SHIPMENT_DESC)
   public ResponseEntity<BaseResponse<BookShipmentResponse>> bookShipment(
       @RequestHeader
           @Parameter(
@@ -95,12 +101,9 @@ public class ShipmentController {
         @ApiResponse(responseCode = "403", description = ApplicationConstants.HTTP_403_FORBIDDEN)
       })
   @Operation(
-      summary =
-          "Api to forward a shipment either to another branch or to the delivery agent of the destination branch.",
-      description =
-          "Once a shipment is received at a branch, employees use this API to either forward it to another branch or "
-              + "to move to the bucket of delivery agents if the receiving branch is the destination branch of the shipment. "
-              + "Route table is used to determine the next hop of the shipment.")
+      tags = {TAG_SHIPMENT_LIFECYCLE},
+      summary = FORWARD_SHIPMENT_SUMMARY,
+      description = FORWARD_SHIPMET_DESC)
   public ResponseEntity<BaseResponse<ForwardShipmentResponse>> receiveAndForwardShipment(
       @RequestHeader
           @Parameter(
@@ -141,10 +144,9 @@ public class ShipmentController {
         @ApiResponse(responseCode = "403", description = ApplicationConstants.HTTP_403_FORBIDDEN)
       })
   @Operation(
-      summary = "Api to deliver a shipment.",
-      description =
-          "Once a shipment is received at its destination branch, "
-              + "agents use this API to attempt to deliver it at the destination address.")
+      tags = {TAG_SHIPMENT_LIFECYCLE},
+      summary = DELIVER_SHIPMENT_SUMMARY,
+      description = DELIVER_SHIPMENT_DESC)
   public ResponseEntity<BaseResponse<DeliverShipmentResponse>> deliverShipment(
       @RequestHeader
           @Parameter(
@@ -179,7 +181,10 @@ public class ShipmentController {
         @ApiResponse(responseCode = "404", description = ApplicationConstants.HTTP_404_NOT_FOUND),
         @ApiResponse(responseCode = "401", description = ApplicationConstants.HTTP_401_UNAUTHORIZED)
       })
-  @Operation(summary = "Api to track the complete history of a shipment.")
+  @Operation(
+      tags = {TAG_SHIPMENT_HISTORY},
+      summary = SHIPMENT_HISTORY_API_SUMMARY,
+      description = SHIPMENT_HISTORY_API_DESC)
   public ResponseEntity<BaseResponse<TrackShipmentResponse>> trackShipment(
       @PathVariable("consignment_num") String consignmentNumber) {
 

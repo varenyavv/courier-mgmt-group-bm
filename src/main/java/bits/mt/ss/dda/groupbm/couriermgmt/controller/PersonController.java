@@ -1,7 +1,15 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.controller;
 
-import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.OPERATION_API_DESC;
-import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.OPERATION_API_TAG;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.ADD_AGENT_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.ADD_EMPLOYEE_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_AGENT_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_CUSTOMER_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.GET_EMPLOYEE_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_AGENT;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_CUSTOMER;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_EMPLOYEE;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.UPDATE_AGENT_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.UPDATE_EMPLOYEE_SUMMARY;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,10 +40,8 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.request.EmployeeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = OPERATION_API_TAG, description = OPERATION_API_DESC)
 public class PersonController {
 
   @Autowired CustomerDao customerDao;
@@ -51,7 +57,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "404", description = ApplicationConstants.HTTP_404_NOT_FOUND)
       })
-  @Operation(summary = "Api to get details of customer by id (contact number)")
+  @Operation(
+      tags = {TAG_CUSTOMER},
+      summary = GET_CUSTOMER_SUMMARY)
   public ResponseEntity<BaseResponse<Customer>> getCustomer(
       @PathVariable("contact-number") long contactNum) {
 
@@ -80,7 +88,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "404", description = ApplicationConstants.HTTP_404_NOT_FOUND)
       })
-  @Operation(summary = "Api to get details of agent by id (contact number)")
+  @Operation(
+      tags = {TAG_AGENT},
+      summary = GET_AGENT_SUMMARY)
   public ResponseEntity<BaseResponse<Agent>> getAgent(
       @PathVariable("contact-number") long contactNum) {
 
@@ -109,7 +119,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to add a new agent")
+  @Operation(
+      tags = {TAG_AGENT},
+      summary = ADD_AGENT_SUMMARY)
   public ResponseEntity<BaseResponse<AgentRequest>> addAgent(
       @RequestBody AgentRequest addAgentRequest) {
 
@@ -133,7 +145,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to update agent details")
+  @Operation(
+      tags = {TAG_AGENT},
+      summary = UPDATE_AGENT_SUMMARY)
   public ResponseEntity<BaseResponse<AgentRequest>> updateAgent(
       @PathVariable("contact-number") Long contactNumber,
       @RequestBody AgentRequest updateAgentRequest) {
@@ -168,7 +182,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "404", description = ApplicationConstants.HTTP_404_NOT_FOUND)
       })
-  @Operation(summary = "Api to get details of employee by employee Id")
+  @Operation(
+      tags = {TAG_EMPLOYEE},
+      summary = GET_EMPLOYEE_SUMMARY)
   public ResponseEntity<BaseResponse<Employee>> getEmployee(@PathVariable("id") long id) {
 
     BaseResponse<Employee> response = new BaseResponse<>();
@@ -195,7 +211,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to add a new employee")
+  @Operation(
+      tags = {TAG_EMPLOYEE},
+      summary = ADD_EMPLOYEE_SUMMARY)
   public ResponseEntity<BaseResponse<EmployeeRequest>> addEmployee(
       @RequestBody EmployeeRequest addEmployeeRequest) {
 
@@ -219,7 +237,9 @@ public class PersonController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to update employee details")
+  @Operation(
+      tags = {TAG_EMPLOYEE},
+      summary = UPDATE_EMPLOYEE_SUMMARY)
   public ResponseEntity<BaseResponse<EmployeeRequest>> updateEmployee(
       @PathVariable("id") Long employeeId, @RequestBody EmployeeRequest updateEmployeeRequest) {
 

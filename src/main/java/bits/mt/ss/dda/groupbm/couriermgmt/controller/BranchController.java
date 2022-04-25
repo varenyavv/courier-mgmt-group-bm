@@ -1,7 +1,12 @@
 package bits.mt.ss.dda.groupbm.couriermgmt.controller;
 
-import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.OPERATION_API_DESC;
-import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.OPERATION_API_TAG;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.ADD_BRANCH_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.ADD_BRANCH_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.SERVICE_PINCODE_DESC;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.SERVICE_PINCODE_SUMMARY;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_BRANCH;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.TAG_PINCODES;
+import static bits.mt.ss.dda.groupbm.couriermgmt.constants.ApplicationConstants.Documentation.UPDATE_BRANCH_SUMMARY;
 
 import java.util.List;
 
@@ -32,11 +37,9 @@ import bits.mt.ss.dda.groupbm.couriermgmt.model.base.Links;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(path = ApplicationConstants.Branch.BRANCH_RESOURCE_BASE_URI)
-@Tag(name = OPERATION_API_TAG, description = OPERATION_API_DESC)
 public class BranchController {
 
   @Autowired BranchDao branchDao;
@@ -50,7 +53,10 @@ public class BranchController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to add a new branch")
+  @Operation(
+      tags = {TAG_BRANCH},
+      summary = ADD_BRANCH_SUMMARY,
+      description = ADD_BRANCH_DESC)
   public ResponseEntity<BaseResponse<Branch>> addBranch(@RequestBody Branch createBranchRequest) {
 
     BaseResponse<Branch> response = new BaseResponse<>();
@@ -73,7 +79,9 @@ public class BranchController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to update a branch")
+  @Operation(
+      tags = {TAG_BRANCH},
+      summary = UPDATE_BRANCH_SUMMARY)
   public ResponseEntity<BaseResponse<Branch>> updateBranch(
       @PathVariable("branch-code") String branchCode, @RequestBody Branch updateBranchRequest) {
 
@@ -103,7 +111,10 @@ public class BranchController {
             description = ApplicationConstants.HTTP_401_UNAUTHORIZED),
         @ApiResponse(responseCode = "400", description = ApplicationConstants.HTTP_400_BAD_REQUEST)
       })
-  @Operation(summary = "Api to add serviceable pincodes and associate them with a branch")
+  @Operation(
+      tags = {TAG_PINCODES},
+      summary = SERVICE_PINCODE_SUMMARY,
+      description = SERVICE_PINCODE_DESC)
   public ResponseEntity<BaseResponse<List<Long>>> addServicePincodes(
       @PathVariable("branch-code") String branchCode,
       @RequestBody @Valid

@@ -23,6 +23,11 @@ application:
     title: Group BM Courier Management Application - OpenApi Doc
     version: 1
 
+springdoc:
+  swagger-ui:
+    tagsSorter: alpha
+    operationsSorter: alpha
+
 management:
   endpoints:
     web:
