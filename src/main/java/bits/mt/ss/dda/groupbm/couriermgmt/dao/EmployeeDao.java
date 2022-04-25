@@ -5,6 +5,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,8 @@ public class EmployeeDao {
 
   public long upsertEmployee(EmployeeRequest employeeRequest, boolean isInsert) {
 
-    try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+    try (Connection connection =
+        Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
       try (CallableStatement callableStatement =
           connection.prepareCall("call upsert_employee(?,?,?,?,?,?,?,?,?,?)")) {
         callableStatement.setString(1, null);

@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,8 @@ public class BranchDao {
 
   public String upsertBranch(Branch createBranchRequest, boolean isInsert) {
 
-    try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+    try (Connection connection =
+        Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
       try (CallableStatement callableStatement =
           connection.prepareCall("call upsert_branch(?,?,?,?,?,?,?,?)")) {
         callableStatement.setString(1, null);
