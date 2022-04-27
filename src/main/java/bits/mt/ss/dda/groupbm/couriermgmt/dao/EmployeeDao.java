@@ -27,7 +27,10 @@ public class EmployeeDao {
   @Autowired JdbcTemplate jdbcTemplate;
 
   private static final String SELECT_EMPLOYEE_BY_PK =
-      "SELECT * FROM employee e INNER JOIN branch b ON e.branch_code = b.branch_code where e.employee_id = ?";
+      "SELECT * FROM employee e "
+          + "INNER JOIN branch b ON e.branch_code = b.branch_code "
+          + "INNER JOIN mv_pincode_city_state mv ON b.pincode = mv.pincode "
+          + "WHERE e.employee_id = ?";
 
   public Employee getEmployeeById(long employeeId) {
 
@@ -49,7 +52,7 @@ public class EmployeeDao {
     try (Connection connection =
         Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
       try (CallableStatement callableStatement =
-          connection.prepareCall("call upsert_employee(?,?,?,?,?,?,?,?,?,?)")) {
+          connection.prepareCall("call upsert_employee(?,?,?,?,?,?)")) {
         callableStatement.setString(1, null);
         callableStatement.registerOutParameter(1, Types.VARCHAR);
         callableStatement.setBoolean(2, isInsert);
@@ -58,10 +61,6 @@ public class EmployeeDao {
         callableStatement.setLong(4, employeeRequest.getContactNumber());
         callableStatement.setString(5, employeeRequest.getName());
         callableStatement.setString(6, employeeRequest.getBranchCode());
-        callableStatement.setString(7, employeeRequest.getAddressLine());
-        callableStatement.setLong(8, employeeRequest.getPincode());
-        callableStatement.setString(9, employeeRequest.getCity());
-        callableStatement.setString(10, employeeRequest.getState());
 
         callableStatement.execute();
 

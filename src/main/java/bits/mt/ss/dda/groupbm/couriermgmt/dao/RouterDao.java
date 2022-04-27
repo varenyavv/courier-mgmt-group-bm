@@ -31,7 +31,9 @@ public class RouterDao {
       "SELECT pincode, branch_code FROM service_pincode WHERE pincode IN (?,?)";
 
   private static final String SELECT_RANDOM_N_INTERMEDIATE_BRANCHES =
-      "SELECT * FROM branch where branch_code NOT IN (?,?) LIMIT ?";
+      "SELECT * FROM branch, mv_pincode_city_state mv "
+          + "where mv.pincode = branch.pincode "
+          + "and branch_code NOT IN (?,?) LIMIT ?";
 
   private static final String INSERT_INTO_DISTANCE =
       "INSERT INTO distance (source_pincode,dest_pincode,distance_km) VALUES (?,?,?)";
@@ -57,11 +59,13 @@ public class RouterDao {
 
   private static final String SELECT_ROUTE_BETWEEN_SOURCE_AND_DESTINATION =
       "SELECT b.branch_code,b.branch_name,"
-          + "b.add_line,b.pincode,b.city,b.state,"
+          + "b.address_line,b.pincode,mv.city,mv.state,"
           + "r.transport_mode,r.hop_counter "
           + "FROM route r "
           + "INNER JOIN branch b "
           + "ON b.branch_code = r.next_hop "
+          + "INNER JOIN mv_pincode_city_state mv "
+          + "ON mv.pincode = b.pincode "
           + "where r.source_pincode=? "
           + "and  r.dest_pincode=? "
           + "order by r.hop_counter";

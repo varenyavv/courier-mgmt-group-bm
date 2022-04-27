@@ -34,7 +34,7 @@ public class RowMapper {
     return new Branch(
         rs.getString("branch_code"),
         rs.getString("branch_name"),
-        rs.getString("add_line"),
+        rs.getString("address_line"),
         rs.getLong("pincode"),
         rs.getString("city"),
         rs.getString("state"));
@@ -45,7 +45,7 @@ public class RowMapper {
         new Branch(
             rs.getString("branch_code"),
             rs.getString("branch_name"),
-            rs.getString("add_line"),
+            rs.getString("address_line"),
             rs.getLong("pincode"),
             rs.getString("city"),
             rs.getString("state")),
@@ -68,14 +68,14 @@ public class RowMapper {
     return new Agent(
         rs.getLong("contact_num"),
         rs.getString("name"),
-        rs.getString("add_line"),
+        rs.getString("address_line"),
         rs.getLong("pincode"),
         rs.getString("city"),
         rs.getString("state"),
         new Branch(
             rs.getString("branch_code"),
             rs.getString("branch_name"),
-            rs.getString("add_line"),
+            rs.getString("address_line"),
             rs.getLong("pincode"),
             rs.getString("city"),
             rs.getString("state")));
@@ -86,14 +86,10 @@ public class RowMapper {
         rs.getLong("employee_id"),
         rs.getLong("contact_num"),
         rs.getString("name"),
-        rs.getString("add_line"),
-        rs.getLong("pincode"),
-        rs.getString("city"),
-        rs.getString("state"),
         new Branch(
             rs.getString("branch_code"),
             rs.getString("branch_name"),
-            rs.getString("add_line"),
+            rs.getString("address_line"),
             rs.getLong("pincode"),
             rs.getString("city"),
             rs.getString("state")));
@@ -103,7 +99,7 @@ public class RowMapper {
     return new Customer(
         rs.getLong("contact_num"),
         rs.getString("name"),
-        rs.getString("add_line"),
+        rs.getString("address_line"),
         rs.getLong("pincode"),
         rs.getString("city"),
         rs.getString("state"));
@@ -115,7 +111,7 @@ public class RowMapper {
         .setConsignmentNumber(rs.getString("consignment_num"))
         .setSourcePincode(rs.getLong("source_pincode"))
         .setDestPincode(rs.getLong("dest_pincode"))
-        .setDestAddressLine(rs.getString("dest_add_line"))
+        .setDestAddressLine(rs.getString("dest_address_line"))
         .setDestCity(rs.getString("dest_city"))
         .setDestState(rs.getString("dest_state"))
         .setDistanceInKm(rs.getLong("distance_km"))
