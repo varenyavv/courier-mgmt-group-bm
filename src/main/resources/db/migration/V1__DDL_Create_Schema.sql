@@ -12,23 +12,27 @@ CREATE TYPE transport_mode AS ENUM (
 	'RAILWAY',
 	'ROAD');
 
-CREATE SEQUENCE seq_branch_code START 1;
-
-CREATE TABLE branch (
-	branch_code varchar(5) NOT NULL CHECK (branch_code ~ 'B[0-9]+'),
-	branch_name varchar NOT NULL UNIQUE,
-	add_line varchar NOT NULL,
-	pincode numeric(6) NOT NULL UNIQUE CHECK (pincode >= 100000 and pincode <= 999999),
-	city varchar NOT NULL,
-	state varchar(2) NOT NULL,
-	CONSTRAINT branch_pk PRIMARY KEY (branch_code)
+CREATE TABLE state (
+	state_code varchar(2) NOT NULL CHECK (char_length(state_code) = 2),
+	"name" varchar NOT NULL UNIQUE,
+	CONSTRAINT state_pk PRIMARY KEY (state_code)
 );
 
-CREATE TABLE service_pincode (
+CREATE SEQUENCE seq_city START 1;
+
+CREATE TABLE city (
+	city_id numeric NOT NULL,
+	"name" varchar NOT NULL UNIQUE,
+	state varchar(2) NOT NULL,
+	CONSTRAINT city_pk PRIMARY KEY (city_id),
+	CONSTRAINT city_fk FOREIGN KEY (state) REFERENCES state(state_code) ON DELETE CASCADE
+);
+
+CREATE TABLE pincode (
 	pincode numeric(6) NOT NULL CHECK (pincode >= 100000 and pincode <= 999999),
-	branch_code varchar(5) NULL,
-	CONSTRAINT service_pincode_pk PRIMARY KEY (pincode),
-	CONSTRAINT service_pincode_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
+	city numeric NOT NULL,
+	CONSTRAINT pincode_pk PRIMARY KEY (pincode),
+	CONSTRAINT pincode_fk FOREIGN KEY (city) REFERENCES city(city_id) ON DELETE CASCADE
 );
 
 CREATE TABLE distance (
@@ -36,8 +40,27 @@ CREATE TABLE distance (
 	dest_pincode numeric(6) NOT NULL,
 	distance_km numeric(5) NOT NULL,
 	CONSTRAINT distance_pk PRIMARY KEY (source_pincode, dest_pincode),
-	CONSTRAINT distance_fk1 FOREIGN KEY (source_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE,
-	CONSTRAINT distance_fk2 FOREIGN KEY (dest_pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
+	CONSTRAINT distance_fk FOREIGN KEY (source_pincode) REFERENCES pincode(pincode) ON DELETE CASCADE,
+	CONSTRAINT distance_fk_1 FOREIGN KEY (dest_pincode) REFERENCES pincode(pincode) ON DELETE CASCADE
+);
+
+CREATE SEQUENCE seq_branch_code START 1;
+
+CREATE TABLE branch (
+	branch_code varchar(5) NOT NULL CHECK (branch_code ~ 'B[0-9]+'),
+	branch_name varchar NOT NULL UNIQUE,
+	address_line varchar NOT NULL,
+	pincode numeric(6) NOT NULL,
+	CONSTRAINT branch_pk PRIMARY KEY (branch_code),
+	CONSTRAINT branch_fk FOREIGN KEY (pincode) REFERENCES pincode(pincode) ON DELETE CASCADE
+);
+
+CREATE TABLE service_pincode (
+	pincode numeric(6) NOT NULL,
+	branch_code varchar(5) NOT NULL,
+	CONSTRAINT service_pincode_pk PRIMARY KEY (pincode),
+	CONSTRAINT service_pincode_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE,
+	CONSTRAINT service_pincode_fk2 FOREIGN KEY (pincode) REFERENCES pincode(pincode) ON DELETE CASCADE
 );
 
 CREATE TABLE route (
@@ -63,10 +86,8 @@ CREATE TABLE rate_card (
 CREATE TABLE customer (
 	contact_num numeric(10) NOT NULL,
 	"name" varchar NOT NULL,
-	add_line varchar NOT NULL,
+	address_line varchar NOT NULL,
 	pincode numeric(6) NOT NULL,
-	city varchar NOT NULL,
-	state varchar(2) NOT NULL,
 	CONSTRAINT customer_pk PRIMARY KEY (contact_num),
 	CONSTRAINT customer_fk FOREIGN KEY (pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
 );
@@ -74,13 +95,12 @@ CREATE TABLE customer (
 CREATE TABLE agent (
 	contact_num numeric(10) NOT NULL,
 	"name" varchar NOT NULL,
-	add_line varchar NOT NULL,
-	pincode numeric(6) NOT NULL CHECK (pincode >= 100000 and pincode <= 999999),
-	city varchar NOT NULL,
-	state varchar(2) NOT NULL,
+	address_line varchar NOT NULL,
+	pincode numeric(6) NOT NULL,
 	branch_code varchar(5) NOT NULL,
 	CONSTRAINT agent_pk PRIMARY KEY (contact_num),
-	CONSTRAINT agent_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE
+	CONSTRAINT agent_fk FOREIGN KEY (branch_code) REFERENCES branch(branch_code) ON DELETE CASCADE,
+	CONSTRAINT agent_fk2 FOREIGN KEY (pincode) REFERENCES service_pincode(pincode) ON DELETE CASCADE
 );
 
 CREATE SEQUENCE seq_employee_id START 100001;
@@ -89,10 +109,6 @@ CREATE TABLE employee (
 	employee_id numeric(6) NOT NULL,
 	contact_num numeric(10) NOT NULL,
 	"name" varchar NOT NULL,
-	add_line varchar NOT NULL,
-	pincode numeric(6) NOT NULL CHECK (pincode >= 100000 and pincode <= 999999),
-	city varchar NOT NULL,
-	state varchar(2) NOT NULL,
 	branch_code varchar(5) NOT NULL,
 	CONSTRAINT employee_pk PRIMARY KEY (employee_id),
 	CONSTRAINT employee_un UNIQUE (contact_num),
@@ -111,10 +127,8 @@ CREATE TABLE shipment (
 	width_cm numeric NOT NULL,
 	height_cm numeric NOT NULL,
 	source_pincode numeric(6) NOT NULL,
-	dest_add_line varchar NOT NULL,
+	dest_address_line varchar NOT NULL,
 	dest_pincode numeric(6) NOT NULL,
-	dest_city varchar NOT NULL,
-	dest_state varchar(2) NOT NULL,
 	distance_km numeric NOT NULL,
 	booking_amount numeric NOT NULL,
 	"status" status NOT NULL,
