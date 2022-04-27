@@ -18,13 +18,15 @@ public class CustomerDao {
   @Autowired JdbcTemplate jdbcTemplate;
 
   private static final String SELECT_CUSTOMER_BY_PK =
-      "SELECT * FROM customer c WHERE c.contact_num = ?";
+      "SELECT * FROM customer c, mv_pincode_city_state mv "
+          + "WHERE c.pincode = mv.pincode "
+          + "and c.contact_num = ?";
 
   private static final String INSERT_INTO_CUSTOMER =
-      "INSERT INTO customer (contact_num,name,add_line,pincode,city,state) VALUES (?,?,?,?,?,?)";
+      "INSERT INTO customer (contact_num,name,address_line,pincode) VALUES (?,?,?,?)";
 
   private static final String UPDATE_CUSTOMER_BY_ID =
-      "UPDATE customer SET name=?,add_line=?,pincode=?,city=?,state=? WHERE contact_num=?";
+      "UPDATE customer SET name=?,address_line=?,pincode=? WHERE contact_num=?";
 
   @Transactional
   public void upsertCustomer(Customer customer, boolean insert) {
@@ -34,17 +36,13 @@ public class CustomerDao {
           customer.getContactNumber(),
           customer.getName(),
           customer.getAddressLine(),
-          customer.getPincode(),
-          customer.getCity(),
-          customer.getState());
+          customer.getPincode());
     } else {
       jdbcTemplate.update(
           UPDATE_CUSTOMER_BY_ID,
           customer.getName(),
           customer.getAddressLine(),
           customer.getPincode(),
-          customer.getCity(),
-          customer.getState(),
           customer.getContactNumber());
     }
   }

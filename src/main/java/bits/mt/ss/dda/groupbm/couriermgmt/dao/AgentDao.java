@@ -26,7 +26,12 @@ public class AgentDao {
   @Autowired JdbcTemplate jdbcTemplate;
 
   private static final String SELECT_AGENT_BY_PK =
-      "SELECT * FROM agent a INNER JOIN branch b ON a.branch_code = b.branch_code where a.contact_num = ?";
+      "SELECT * FROM agent a "
+          + "INNER JOIN branch b "
+          + "ON a.branch_code = b.branch_code "
+          + "INNER JOIN mv_pincode_city_state mv "
+          + "ON a.pincode = mv.pincode "
+          + "where a.contact_num = ?";
 
   public Agent getAgentById(long contactNum) {
 
@@ -47,7 +52,7 @@ public class AgentDao {
     try (Connection connection =
         Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
       try (CallableStatement callableStatement =
-          connection.prepareCall("call upsert_agent(?,?,?,?,?,?,?,?,?)")) {
+          connection.prepareCall("call upsert_agent(?,?,?,?,?,?,?)")) {
         callableStatement.setString(1, null);
         callableStatement.registerOutParameter(1, Types.VARCHAR);
         callableStatement.setBoolean(2, isInsert);
@@ -56,8 +61,6 @@ public class AgentDao {
         callableStatement.setString(5, agentRequest.getBranchCode());
         callableStatement.setString(6, agentRequest.getAddressLine());
         callableStatement.setLong(7, agentRequest.getPincode());
-        callableStatement.setString(8, agentRequest.getCity());
-        callableStatement.setString(9, agentRequest.getState());
 
         callableStatement.execute();
 

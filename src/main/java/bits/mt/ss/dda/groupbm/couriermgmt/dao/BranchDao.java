@@ -27,7 +27,9 @@ public class BranchDao {
   @Autowired JdbcTemplate jdbcTemplate;
 
   private static final String SELECT_BRANCH_BY_BRANCH_CODE =
-      "SELECT * FROM branch where branch_code = ?";
+      "SELECT * FROM branch, mv_pincode_city_state mv "
+          + "where branch.pincode = mv.pincode "
+          + "and branch_code = ?";
 
   private static final String SELECT_BRANCH_CODE_BY_PINCODE =
       "SELECT branch_code FROM service_pincode where pincode = ?";
@@ -70,7 +72,7 @@ public class BranchDao {
     try (Connection connection =
         Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
       try (CallableStatement callableStatement =
-          connection.prepareCall("call upsert_branch(?,?,?,?,?,?,?,?)")) {
+          connection.prepareCall("call upsert_branch(?,?,?,?,?,?)")) {
         callableStatement.setString(1, null);
         callableStatement.registerOutParameter(1, Types.VARCHAR);
         callableStatement.setBoolean(2, isInsert);
@@ -79,8 +81,6 @@ public class BranchDao {
         callableStatement.setString(4, createBranchRequest.getBranchName());
         callableStatement.setString(5, createBranchRequest.getAddressLine());
         callableStatement.setLong(6, createBranchRequest.getPincode());
-        callableStatement.setString(7, createBranchRequest.getCity());
-        callableStatement.setString(8, createBranchRequest.getState());
 
         callableStatement.execute();
 
